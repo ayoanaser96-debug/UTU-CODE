@@ -1,0 +1,3149 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Utu — A studio for considered software</title>
+<meta name="description" content="Utu is a tech studio crafting elegant, intelligent products. Editorial design meets engineering precision. Named for the Mesopotamian sun god of justice." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,300..900,0..100,0..1&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- Favicon: the Utu sun-disc mark -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='10' fill='%23b85c2f'/><circle cx='32' cy='32' r='20' fill='none' stroke='%23b85c2f' stroke-width='2'/><path d='M32 6v8M32 50v8M6 32h8M50 32h8M14 14l5.5 5.5M44.5 44.5l5.5 5.5M14 50l5.5-5.5M44.5 19.5l5.5-5.5' stroke='%23b85c2f' stroke-width='2' stroke-linecap='round'/></svg>">
+
+<style>
+/* ============================================================
+   UTU · DESIGN TOKENS (single source of truth)
+   ============================================================ */
+:root {
+  /* Palette — editorial warmth + 9D depth */
+  --ink:        #1a1715;
+  --ink-soft:   #2a2521;
+  --ink-mute:   #5a524b;
+  --paper:      #f5f0e8;
+  --paper-2:    #ede6da;
+  --paper-3:    #e3dac8;
+  --cream:      #faf6ee;
+  --line:       rgba(26, 23, 21, 0.12);
+  --line-2:     rgba(26, 23, 21, 0.22);
+
+  /* Accent — restrained luxury */
+  --accent:     #b85c2f;          /* burnt sienna */
+  --accent-2:   #d18067;
+  --accent-3:   #8a3f1f;
+  --gold:       #c8a45a;
+  --indigo:     #524b8f;
+  --moss:       #5a6648;
+  --success:    #4a7c5a;
+  --warn:       #c8924a;
+  --danger:     #b54a3f;
+
+  /* 9D depth */
+  --shadow-soft:   0 1px 2px rgba(26,23,21,0.04), 0 4px 12px rgba(26,23,21,0.06);
+  --shadow-lift:   0 2px 4px rgba(26,23,21,0.05), 0 12px 32px rgba(26,23,21,0.08), 0 1px 0 rgba(255,255,255,0.6) inset;
+  --shadow-deep:   0 4px 8px rgba(26,23,21,0.06), 0 24px 60px rgba(26,23,21,0.12), 0 1px 0 rgba(255,255,255,0.7) inset;
+  --shadow-press:  inset 0 2px 6px rgba(26,23,21,0.08), inset 0 -1px 0 rgba(255,255,255,0.5);
+  --glow-accent:   0 0 0 1px rgba(184,92,47,0.2), 0 8px 24px rgba(184,92,47,0.18);
+
+  /* Typography */
+  --font-serif: 'Fraunces', 'Cormorant Garamond', Georgia, serif;
+  --font-sans:  'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono:  'JetBrains Mono', 'SF Mono', monospace;
+
+  /* Geometry */
+  --radius-sm: 6px;
+  --radius:    12px;
+  --radius-lg: 20px;
+  --radius-xl: 32px;
+
+  /* Motion */
+  --ease:      cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out:  cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-sans);
+  font-feature-settings: 'ss01', 'cv11';
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+::selection { background: var(--accent); color: var(--cream); }
+
+/* Subtle paper grain — warmth */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.4;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(184,92,47,0.04) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(82,75,143,0.03) 0%, transparent 40%);
+}
+
+/* ============================================================
+   UTU · WATERMARK — The Sun God of Justice
+   A persistent, parallax-driven mark featuring the four-rayed
+   sun disc (Shamash's ancient symbol) and the scales of justice.
+   ============================================================ */
+.utu-watermark {
+  position: fixed;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.055;
+  mix-blend-mode: multiply;
+  transition: opacity 1.2s var(--ease);
+  will-change: transform;
+}
+.utu-watermark--main {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(85vh, 85vw);
+  height: min(85vh, 85vw);
+}
+.utu-watermark--corner {
+  top: 80px;
+  right: 40px;
+  width: 140px;
+  height: 140px;
+  opacity: 0.12;
+}
+.utu-watermark svg { width: 100%; height: 100%; display: block; }
+
+/* The mark spins gently with scroll — the sun's daily journey */
+.utu-watermark__rotor {
+  transform-origin: 50% 50%;
+  transform-box: fill-box;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .utu-watermark__rotor { animation: none !important; }
+}
+
+/* ============================================================
+   GLOBAL · NAVIGATION
+   ============================================================ */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 40px;
+  background: rgba(245, 240, 232, 0.78);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border-bottom: 1px solid var(--line);
+  transition: padding 0.4s var(--ease), box-shadow 0.4s var(--ease);
+}
+.nav.is-scrolled {
+  padding: 12px 40px;
+  box-shadow: var(--shadow-soft);
+}
+.nav__brand {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  font-variation-settings: 'opsz' 144, 'SOFT' 30;
+  cursor: pointer;
+  user-select: none;
+}
+.nav__brand-mark {
+  width: 28px; height: 28px;
+  flex-shrink: 0;
+  display: block;
+  transition: transform 0.6s var(--ease);
+}
+.nav__brand:hover .nav__brand-mark { transform: rotate(45deg); }
+.nav__brand small {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  font-weight: 400;
+  margin-left: 4px;
+}
+.nav__sections {
+  display: flex; gap: 4px;
+  background: var(--paper-2);
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-press);
+}
+.nav__section-btn {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  cursor: pointer;
+  border-radius: 999px;
+  transition: all 0.3s var(--ease);
+}
+.nav__section-btn:hover { color: var(--ink); }
+.nav__section-btn.active {
+  background: var(--cream);
+  color: var(--ink);
+  box-shadow: var(--shadow-soft);
+}
+.nav__cta {
+  display: flex; align-items: center; gap: 6px;
+  padding: 10px 18px;
+  background: var(--ink);
+  color: var(--cream);
+  border: none;
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s var(--ease);
+  text-decoration: none;
+}
+.nav__cta:hover {
+  background: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: var(--glow-accent);
+}
+
+/* ============================================================
+   GLOBAL · SCROLL PROGRESS BAR
+   ============================================================ */
+.scroll-progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--gold));
+  z-index: 200;
+  width: 0%;
+  transition: width 0.05s linear;
+  box-shadow: 0 0 10px rgba(184,92,47,0.5);
+}
+
+/* ============================================================
+   GLOBAL · SECTION CHROME
+   ============================================================ */
+.section { display: none; padding-top: 72px; min-height: 100vh; position: relative; z-index: 3; }
+.section.active { display: block; }
+
+.section__opener {
+  padding: 80px 40px 60px;
+  border-bottom: 1px solid var(--line);
+  position: relative;
+  overflow: hidden;
+}
+.section__label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+.section__title {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(48px, 7vw, 96px);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  font-variation-settings: 'opsz' 144, 'SOFT' 50, 'WONK' 1;
+  max-width: 1100px;
+}
+.section__title em {
+  font-style: italic;
+  color: var(--accent);
+  font-variation-settings: 'opsz' 144, 'SOFT' 100, 'WONK' 1;
+}
+.section__subtitle {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: clamp(18px, 1.6vw, 22px);
+  color: var(--ink-mute);
+  margin-top: 24px;
+  max-width: 720px;
+  line-height: 1.5;
+}
+
+/* ============================================================
+   PARALLAX & SCROLL-LINKED MOTION
+   These classes are wired up by JS — their transforms update on scroll.
+   ============================================================ */
+.parallax       { will-change: transform; transition: transform 0.05s linear; }
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 1.0s var(--ease), transform 1.0s var(--ease);
+}
+.reveal.is-visible { opacity: 1; transform: translateY(0); }
+.reveal--stagger > * {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
+}
+.reveal--stagger.is-visible > * { opacity: 1; transform: translateY(0); }
+.reveal--stagger.is-visible > *:nth-child(1) { transition-delay: 0.05s; }
+.reveal--stagger.is-visible > *:nth-child(2) { transition-delay: 0.15s; }
+.reveal--stagger.is-visible > *:nth-child(3) { transition-delay: 0.25s; }
+.reveal--stagger.is-visible > *:nth-child(4) { transition-delay: 0.35s; }
+.reveal--stagger.is-visible > *:nth-child(5) { transition-delay: 0.45s; }
+.reveal--stagger.is-visible > *:nth-child(6) { transition-delay: 0.55s; }
+
+/* Cursor-follow tilt on certain cards */
+.tilt {
+  transition: transform 0.4s var(--ease);
+  transform-style: preserve-3d;
+}
+
+/* ============================================================
+   FLOATING WHATSAPP BUTTON (persistent)
+   ============================================================ */
+.wa-float {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  z-index: 90;
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 20px 14px 16px;
+  background: #25D366;
+  color: white;
+  text-decoration: none;
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: 0 10px 30px rgba(37,211,102,0.4), 0 4px 12px rgba(0,0,0,0.15);
+  transition: all 0.4s var(--ease);
+  cursor: pointer;
+  border: none;
+}
+.wa-float:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 14px 40px rgba(37,211,102,0.55), 0 6px 16px rgba(0,0,0,0.2);
+}
+.wa-float svg { width: 22px; height: 22px; flex-shrink: 0; }
+.wa-float__pulse {
+  position: absolute; inset: 0;
+  border-radius: 999px;
+  border: 2px solid #25D366;
+  animation: wa-pulse 2.5s var(--ease) infinite;
+  pointer-events: none;
+}
+@keyframes wa-pulse {
+  0%   { transform: scale(1);   opacity: 0.6; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+/* ============================================================
+   STYLEGUIDE SECTION
+   ============================================================ */
+.guide__hero {
+  padding: 80px 40px 100px;
+  background: linear-gradient(180deg, var(--paper) 0%, var(--paper-2) 100%);
+  border-bottom: 1px solid var(--line);
+  position: relative;
+}
+.guide__grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 32px;
+  padding: 80px 40px;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+.guide__block { grid-column: span 6; }
+.guide__block--full { grid-column: span 12; }
+.guide__block--third { grid-column: span 4; }
+.guide__h {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 12px;
+}
+.guide__h::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+.guide__h2 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 32px;
+  letter-spacing: -0.02em;
+  font-variation-settings: 'opsz' 96;
+  margin-bottom: 24px;
+}
+
+/* Color swatches */
+.swatch-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.swatch {
+  width: 88px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.3s var(--ease);
+}
+.swatch:hover { transform: translateY(-4px); }
+.swatch__color { height: 88px; }
+.swatch__meta {
+  background: var(--cream);
+  padding: 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  border-top: 1px solid var(--line);
+}
+.swatch__name { color: var(--ink); font-weight: 500; }
+.swatch__hex { color: var(--ink-mute); margin-top: 2px; }
+
+/* Type spec */
+.type-spec { padding: 24px 0; border-bottom: 1px dashed var(--line); }
+.type-spec:last-child { border: 0; }
+.type-spec__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-bottom: 8px;
+}
+.type-display {
+  font-family: var(--font-serif);
+  font-size: 64px;
+  line-height: 1;
+  font-weight: 400;
+  font-variation-settings: 'opsz' 144, 'SOFT' 50, 'WONK' 1;
+  letter-spacing: -0.02em;
+}
+.type-display em {
+  font-style: italic;
+  color: var(--accent);
+  font-variation-settings: 'opsz' 144, 'SOFT' 100, 'WONK' 1;
+}
+.type-h1 { font-family: var(--font-serif); font-size: 40px; line-height: 1.1; font-weight: 400; font-variation-settings: 'opsz' 96; letter-spacing: -0.02em; }
+.type-body { font-size: 16px; color: var(--ink-soft); line-height: 1.6; max-width: 520px; }
+.type-mono { font-family: var(--font-mono); font-size: 13px; color: var(--ink-mute); }
+
+/* Buttons demo */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s var(--ease);
+  text-decoration: none;
+}
+.btn--primary { background: var(--ink); color: var(--cream); }
+.btn--primary:hover { background: var(--accent); transform: translateY(-1px); box-shadow: var(--glow-accent); }
+.btn--ghost { background: transparent; color: var(--ink); border: 1px solid var(--line-2); }
+.btn--ghost:hover { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+.btn--accent { background: var(--accent); color: var(--cream); box-shadow: var(--shadow-lift); }
+.btn--accent:hover { background: var(--accent-3); box-shadow: var(--glow-accent); transform: translateY(-1px); }
+
+.btn-row { display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* Card sample */
+.demo-card {
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: var(--shadow-lift);
+  transition: all 0.4s var(--ease);
+}
+.demo-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-deep); }
+.demo-card__num {
+  font-family: var(--font-mono);
+  color: var(--accent);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  margin-bottom: 12px;
+}
+.demo-card__title {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 400;
+  margin-bottom: 8px;
+  font-variation-settings: 'opsz' 96;
+}
+.demo-card__body { color: var(--ink-mute); font-size: 14px; line-height: 1.6; }
+
+/* ============================================================
+   DASHBOARD SECTION (live, interactive)
+   ============================================================ */
+.dash {
+  background: var(--paper);
+  min-height: 100vh;
+}
+.dash__shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: calc(100vh - 72px);
+}
+.dash__sidebar {
+  background: var(--ink);
+  color: var(--cream);
+  padding: 32px 0;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  position: sticky;
+  top: 72px;
+  height: calc(100vh - 72px);
+  overflow-y: auto;
+}
+.dash__brand {
+  padding: 0 24px 28px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  font-family: var(--font-serif);
+  font-size: 22px;
+  display: flex; align-items: center; gap: 10px;
+  font-variation-settings: 'opsz' 144, 'SOFT' 30;
+}
+.dash__brand-glyph {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--gold));
+  display: flex; align-items: center; justify-content: center;
+  color: var(--cream);
+  font-weight: 700;
+  font-family: var(--font-sans);
+  font-size: 14px;
+}
+.dash__brand small {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(250,246,238,0.5);
+  margin-top: 2px;
+  font-weight: 400;
+}
+.dash__nav { padding: 20px 12px; }
+.dash__nav-h {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(250,246,238,0.4);
+  padding: 16px 12px 8px;
+}
+.dash__nav-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  color: rgba(250,246,238,0.7);
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  margin-bottom: 2px;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+}
+.dash__nav-item:hover { background: rgba(255,255,255,0.06); color: var(--cream); }
+.dash__nav-item.active {
+  background: var(--accent);
+  color: var(--cream);
+}
+.dash__nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+.dash__nav-item .pip {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  background: rgba(255,255,255,0.1);
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+.dash__nav-item.active .pip { background: rgba(0,0,0,0.2); }
+
+.dash__main {
+  padding: 32px 40px;
+  max-width: 1400px;
+}
+.dash__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 32px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--line);
+}
+.dash__title {
+  font-family: var(--font-serif);
+  font-size: 36px;
+  font-weight: 400;
+  font-variation-settings: 'opsz' 96, 'SOFT' 30;
+  letter-spacing: -0.02em;
+}
+.dash__subtitle {
+  color: var(--ink-mute);
+  font-size: 13px;
+  margin-top: 4px;
+  font-family: var(--font-mono);
+}
+.dash__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Time-range pill toggle */
+.range-toggle {
+  display: inline-flex;
+  background: var(--paper-2);
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+}
+.range-toggle button {
+  padding: 6px 14px;
+  border: none;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--ink-mute);
+  cursor: pointer;
+  border-radius: 999px;
+  transition: all 0.25s var(--ease);
+}
+.range-toggle button:hover { color: var(--ink); }
+.range-toggle button.active {
+  background: var(--cream);
+  color: var(--ink);
+  box-shadow: var(--shadow-soft);
+}
+
+/* KPI tiles */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.kpi {
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow-soft);
+  transition: all 0.3s var(--ease);
+  position: relative;
+  overflow: hidden;
+}
+.kpi:hover { transform: translateY(-3px); box-shadow: var(--shadow-lift); }
+.kpi__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.kpi__val {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 400;
+  margin: 8px 0 4px;
+  font-variation-settings: 'opsz' 96;
+  letter-spacing: -0.02em;
+}
+.kpi__delta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.kpi__delta--up { color: var(--success); }
+.kpi__delta--down { color: var(--danger); }
+.kpi__spark {
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 100px; height: 36px;
+  opacity: 0.6;
+}
+
+/* Chart frame */
+.dash-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.dash-grid--2col { grid-template-columns: 1fr 1fr; }
+.dash-grid--3col { grid-template-columns: repeat(3, 1fr); }
+
+.panel {
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow-soft);
+}
+.panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.panel__title {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 500;
+  font-variation-settings: 'opsz' 96;
+}
+.panel__meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-mute);
+}
+.panel__legend { display: flex; gap: 16px; flex-wrap: wrap; }
+.legend-item {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-mute);
+  cursor: pointer;
+  user-select: none;
+}
+.legend-item__dot {
+  width: 10px; height: 10px;
+  border-radius: 2px;
+}
+.legend-item.muted { opacity: 0.4; }
+
+/* Chart canvas wrapper */
+.chart {
+  width: 100%;
+  height: 280px;
+  position: relative;
+}
+.chart svg { width: 100%; height: 100%; overflow: visible; }
+.chart__tooltip {
+  position: absolute;
+  background: var(--ink);
+  color: var(--cream);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  transform: translate(-50%, -110%);
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  z-index: 10;
+}
+.chart__tooltip.visible { opacity: 1; }
+.chart__tooltip-label { color: rgba(250,246,238,0.5); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px; }
+.chart__tooltip-val { color: var(--cream); font-size: 14px; font-weight: 500; }
+
+/* Map (Iraq) */
+.iraq-map { width: 100%; height: 320px; }
+.iraq-map .region {
+  fill: var(--paper-3);
+  stroke: var(--cream);
+  stroke-width: 1.5;
+  transition: fill 0.3s var(--ease);
+  cursor: pointer;
+}
+.iraq-map .region:hover { fill: var(--accent-2); }
+.iraq-map .region.hot { fill: var(--accent); }
+.iraq-map .region.warm { fill: var(--accent-2); }
+.iraq-map .region.cool { fill: var(--gold); }
+.iraq-map .pin {
+  fill: var(--ink);
+  stroke: var(--cream);
+  stroke-width: 2;
+}
+.iraq-map .label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  fill: var(--ink);
+  pointer-events: none;
+  text-anchor: middle;
+}
+
+/* Order list */
+.order-list { width: 100%; }
+.order-list__row {
+  display: grid;
+  grid-template-columns: 60px 1fr 90px 80px 90px;
+  gap: 12px;
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--line);
+  align-items: center;
+  font-size: 13px;
+  transition: background 0.2s var(--ease);
+}
+.order-list__row:hover { background: var(--paper-2); }
+.order-list__row--head {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  padding: 0 12px 12px;
+  border-bottom: 1px solid var(--line-2);
+}
+.order-id { font-family: var(--font-mono); color: var(--ink-mute); font-size: 11px; }
+.order-customer { font-weight: 500; }
+.order-route { font-size: 11px; color: var(--ink-mute); margin-top: 2px; font-family: var(--font-mono); }
+.order-amount { font-family: var(--font-mono); font-weight: 500; text-align: right; }
+.order-status {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.status-delivered { background: rgba(74,124,90,0.15); color: var(--success); }
+.status-in-transit { background: rgba(184,92,47,0.15); color: var(--accent); }
+.status-pending { background: rgba(200,146,74,0.15); color: var(--warn); }
+.status-cancelled { background: rgba(181,74,63,0.15); color: var(--danger); }
+
+.dash-search {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  padding: 8px 14px;
+  border-radius: 999px;
+  flex: 1;
+  max-width: 320px;
+}
+.dash-search input {
+  border: none;
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  flex: 1;
+  outline: none;
+  color: var(--ink);
+}
+.dash-search svg { width: 14px; height: 14px; color: var(--ink-mute); }
+
+/* Drivers panel */
+.driver-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.driver-row:last-child { border: 0; }
+.driver-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--gold));
+  color: var(--cream);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.driver-info { flex: 1; min-width: 0; }
+.driver-name { font-weight: 500; font-size: 14px; }
+.driver-stat { font-family: var(--font-mono); font-size: 11px; color: var(--ink-mute); }
+.driver-status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 0 3px rgba(74,124,90,0.2);
+  animation: dot-pulse 2s ease-in-out infinite;
+}
+.driver-status-dot.offline { background: var(--ink-mute); animation: none; box-shadow: none; }
+@keyframes dot-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(74,124,90,0.2); }
+  50% { box-shadow: 0 0 0 6px rgba(74,124,90,0.05); }
+}
+
+/* ============================================================
+   MARKETING SECTION
+   ============================================================ */
+.hero {
+  position: relative;
+  min-height: calc(100vh - 72px);
+  padding: 80px 40px 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+.hero__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 28px;
+  display: flex; align-items: center; gap: 12px;
+}
+.hero__eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 24px; height: 1px;
+  background: var(--accent);
+}
+.hero__h1 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(56px, 9vw, 144px);
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+  font-variation-settings: 'opsz' 144, 'SOFT' 50, 'WONK' 1;
+  max-width: 1200px;
+}
+.hero__h1 em {
+  font-style: italic;
+  color: var(--accent);
+  font-variation-settings: 'opsz' 144, 'SOFT' 100, 'WONK' 1;
+}
+.hero__h1 .strike {
+  position: relative;
+  display: inline-block;
+}
+.hero__h1 .strike::after {
+  content: '';
+  position: absolute;
+  left: -2%; right: -2%;
+  top: 52%;
+  height: 4px;
+  background: var(--accent);
+  transform: rotate(-2deg);
+  box-shadow: 0 1px 2px rgba(184,92,47,0.4);
+}
+.hero__lede {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: clamp(20px, 2.2vw, 28px);
+  color: var(--ink-mute);
+  margin-top: 40px;
+  max-width: 720px;
+  line-height: 1.45;
+}
+.hero__cta-row { display: flex; gap: 16px; margin-top: 48px; flex-wrap: wrap; }
+.hero__cta-row .btn { padding: 16px 28px; font-size: 15px; }
+
+/* Hero meta strip */
+.hero__meta-strip {
+  display: flex;
+  gap: 48px;
+  margin-top: 64px;
+  padding-top: 40px;
+  border-top: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+.hero__stat-num {
+  font-family: var(--font-serif);
+  font-size: 36px;
+  font-weight: 400;
+  font-variation-settings: 'opsz' 96, 'SOFT' 30;
+  letter-spacing: -0.02em;
+  color: var(--accent);
+}
+.hero__stat-lab {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-top: 4px;
+  max-width: 180px;
+}
+
+/* Floating sun (parallax) */
+.hero__sun {
+  position: absolute;
+  top: 8%;
+  right: -8%;
+  width: 600px;
+  height: 600px;
+  opacity: 0.13;
+  pointer-events: none;
+  z-index: 0;
+}
+.hero__content { position: relative; z-index: 2; }
+
+/* Manifesto */
+.manifesto {
+  padding: 140px 40px;
+  border-top: 1px solid var(--line);
+  background: var(--paper-2);
+  position: relative;
+}
+.manifesto__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: 100px;
+  align-items: start;
+}
+.manifesto__head { position: sticky; top: 100px; }
+.manifesto__h {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(36px, 4.5vw, 56px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-variation-settings: 'opsz' 144, 'SOFT' 50;
+}
+.manifesto__h em {
+  font-style: italic;
+  color: var(--accent);
+  font-variation-settings: 'opsz' 144, 'SOFT' 100, 'WONK' 1;
+}
+.manifesto__pillar {
+  padding: 32px 0;
+  border-bottom: 1px solid var(--line);
+}
+.manifesto__pillar:last-child { border: 0; }
+.manifesto__pillar-num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+.manifesto__pillar-h {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 400;
+  font-variation-settings: 'opsz' 96;
+  letter-spacing: -0.01em;
+  margin-bottom: 12px;
+}
+.manifesto__pillar-body {
+  color: var(--ink-mute);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+/* Services */
+.services {
+  padding: 140px 40px;
+  border-top: 1px solid var(--line);
+}
+.services__head { max-width: 1200px; margin: 0 auto 80px; }
+.services__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  max-width: 1400px;
+  margin: 0 auto;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.service {
+  background: var(--cream);
+  padding: 48px 36px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s var(--ease);
+  cursor: pointer;
+  min-height: 320px;
+}
+.service:hover { background: var(--paper); }
+.service:hover .service__hover-arrow { transform: translate(4px, -4px); opacity: 1; }
+.service__num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+  margin-bottom: 24px;
+}
+.service__h {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 400;
+  font-variation-settings: 'opsz' 96, 'SOFT' 30;
+  letter-spacing: -0.01em;
+  margin-bottom: 16px;
+  line-height: 1.15;
+}
+.service__body {
+  color: var(--ink-mute);
+  font-size: 14px;
+  line-height: 1.65;
+}
+.service__tags {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  margin-top: 24px;
+}
+.service__tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 4px 10px;
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink-mute);
+}
+.service__hover-arrow {
+  position: absolute;
+  top: 36px;
+  right: 36px;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--cream);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0.4;
+  transition: all 0.4s var(--ease);
+}
+
+/* Portfolio */
+.portfolio {
+  padding: 140px 40px;
+  border-top: 1px solid var(--line);
+  background: var(--paper);
+}
+.portfolio__head { max-width: 1200px; margin: 0 auto 80px; }
+.portfolio__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.case {
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all 0.5s var(--ease);
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+}
+.case:hover { transform: translateY(-6px); box-shadow: var(--shadow-deep); }
+.case--wide { grid-column: span 2; }
+.case__visual {
+  height: 280px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--paper-2), var(--paper-3));
+}
+.case--wide .case__visual { height: 360px; }
+.case__visual-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.case__body { padding: 28px 32px; }
+.case__meta {
+  display: flex; gap: 12px;
+  margin-bottom: 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--ink-mute);
+}
+.case__meta-tag {
+  padding: 3px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper-2);
+}
+.case__h {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 400;
+  font-variation-settings: 'opsz' 96;
+  letter-spacing: -0.01em;
+  margin-bottom: 8px;
+}
+.case__lede {
+  color: var(--ink-mute);
+  font-size: 14px;
+  line-height: 1.65;
+}
+.case__metrics {
+  display: flex; gap: 32px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px dashed var(--line);
+}
+.case__metric-num {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  color: var(--accent);
+}
+.case__metric-lab {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-top: 2px;
+}
+
+/* Process */
+.process {
+  padding: 140px 40px;
+  border-top: 1px solid var(--line);
+  background: var(--paper-2);
+}
+.process__head { max-width: 1200px; margin: 0 auto 80px; }
+.process__rail {
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
+}
+.process__rail::before {
+  content: '';
+  position: absolute;
+  left: 32px;
+  top: 12px;
+  bottom: 12px;
+  width: 2px;
+  background: linear-gradient(180deg, var(--accent), var(--gold), transparent);
+}
+.process__step {
+  display: flex;
+  gap: 32px;
+  padding: 32px 0;
+  align-items: flex-start;
+  position: relative;
+}
+.process__node {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: var(--cream);
+  border: 2px solid var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-serif);
+  font-size: 24px;
+  color: var(--accent);
+  flex-shrink: 0;
+  z-index: 2;
+  font-variation-settings: 'opsz' 96, 'SOFT' 50, 'WONK' 1;
+  font-style: italic;
+  box-shadow: 0 0 0 6px var(--paper-2);
+}
+.process__step-h {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 400;
+  font-variation-settings: 'opsz' 96;
+  letter-spacing: -0.01em;
+  margin-bottom: 8px;
+}
+.process__step-body {
+  color: var(--ink-mute);
+  font-size: 15px;
+  line-height: 1.65;
+  max-width: 580px;
+}
+
+/* Pricing */
+.pricing {
+  padding: 140px 40px;
+  border-top: 1px solid var(--line);
+  background: var(--paper);
+}
+.pricing__head { max-width: 1200px; margin: 0 auto 80px; }
+.pricing__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+.tier {
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 40px 32px;
+  position: relative;
+  transition: all 0.4s var(--ease);
+}
+.tier:hover { transform: translateY(-4px); box-shadow: var(--shadow-deep); }
+.tier--featured {
+  background: var(--ink);
+  color: var(--cream);
+  border-color: var(--ink);
+}
+.tier--featured::before {
+  content: 'Most fitting';
+  position: absolute;
+  top: -12px;
+  left: 32px;
+  background: var(--accent);
+  color: var(--cream);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.tier__name {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+.tier--featured .tier__name { color: var(--gold); }
+.tier__price {
+  font-family: var(--font-serif);
+  font-size: 48px;
+  font-weight: 400;
+  font-variation-settings: 'opsz' 144, 'SOFT' 30;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.tier__price small { font-size: 18px; color: var(--ink-mute); }
+.tier--featured .tier__price small { color: rgba(250,246,238,0.6); }
+.tier__desc {
+  color: var(--ink-mute);
+  font-size: 14px;
+  margin: 16px 0 28px;
+  line-height: 1.55;
+}
+.tier--featured .tier__desc { color: rgba(250,246,238,0.7); }
+.tier__list { list-style: none; margin-bottom: 32px; }
+.tier__list li {
+  padding: 8px 0;
+  font-size: 14px;
+  display: flex; align-items: flex-start; gap: 10px;
+  border-bottom: 1px dashed var(--line);
+}
+.tier--featured .tier__list li { border-color: rgba(255,255,255,0.08); }
+.tier__list li:last-child { border: 0; }
+.tier__list li::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-top: 8px;
+  flex-shrink: 0;
+}
+.tier__cta {
+  width: 100%;
+  display: flex; align-items: center; justify-content: center;
+  padding: 14px;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s var(--ease);
+}
+.tier__cta:hover { background: var(--ink); color: var(--cream); }
+.tier--featured .tier__cta { background: var(--accent); color: var(--cream); border-color: var(--accent); }
+.tier--featured .tier__cta:hover { background: var(--cream); color: var(--ink); border-color: var(--cream); }
+
+/* Testimonials */
+.testimonials {
+  padding: 140px 40px;
+  border-top: 1px solid var(--line);
+  background: var(--paper-2);
+  overflow: hidden;
+}
+.testimonials__head { max-width: 1200px; margin: 0 auto 80px; }
+.testimonials__rail {
+  display: flex;
+  gap: 24px;
+  padding: 0 40px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.testimonials__rail::-webkit-scrollbar { display: none; }
+.testimony {
+  flex: 0 0 480px;
+  scroll-snap-align: start;
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  box-shadow: var(--shadow-soft);
+}
+.testimony__quote {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  line-height: 1.5;
+  font-weight: 400;
+  font-variation-settings: 'opsz' 96, 'SOFT' 30;
+  margin-bottom: 28px;
+  letter-spacing: -0.01em;
+}
+.testimony__quote::before {
+  content: '\201C';
+  font-size: 56px;
+  color: var(--accent);
+  line-height: 0;
+  margin-right: 4px;
+  vertical-align: -16px;
+}
+.testimony__author { display: flex; align-items: center; gap: 14px; }
+.testimony__avatar {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--gold));
+  color: var(--cream);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600;
+}
+.testimony__name { font-weight: 600; font-size: 14px; }
+.testimony__role { font-family: var(--font-mono); font-size: 11px; color: var(--ink-mute); }
+
+/* FAQ */
+.faq {
+  padding: 140px 40px;
+  border-top: 1px solid var(--line);
+}
+.faq__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1.8fr;
+  gap: 80px;
+}
+.faq__head { position: sticky; top: 100px; align-self: start; }
+.faq__list {}
+.faq__item {
+  border-bottom: 1px solid var(--line);
+}
+.faq__q {
+  width: 100%;
+  text-align: left;
+  padding: 24px 0;
+  background: transparent;
+  border: none;
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 400;
+  font-variation-settings: 'opsz' 96;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between; gap: 20px;
+  color: var(--ink);
+}
+.faq__q-icon {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--line-2);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.3s var(--ease);
+}
+.faq__item.open .faq__q-icon { background: var(--accent); border-color: var(--accent); color: var(--cream); transform: rotate(45deg); }
+.faq__a {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s var(--ease);
+  color: var(--ink-mute);
+  font-size: 15px;
+  line-height: 1.7;
+}
+.faq__item.open .faq__a { max-height: 320px; padding-bottom: 24px; }
+
+/* Contact */
+.contact {
+  padding: 140px 40px;
+  border-top: 1px solid var(--line);
+  background: var(--ink);
+  color: var(--cream);
+  position: relative;
+  overflow: hidden;
+}
+.contact::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(184,92,47,0.18) 0%, transparent 50%),
+    radial-gradient(circle at 80% 30%, rgba(200,164,90,0.12) 0%, transparent 50%);
+  pointer-events: none;
+}
+.contact__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 80px;
+  position: relative;
+  z-index: 2;
+}
+.contact__head { position: sticky; top: 100px; align-self: start; }
+.contact__h {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(40px, 5vw, 64px);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variation-settings: 'opsz' 144, 'SOFT' 50;
+}
+.contact__h em {
+  font-style: italic;
+  color: var(--accent-2);
+  font-variation-settings: 'opsz' 144, 'SOFT' 100, 'WONK' 1;
+}
+.contact__lede {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: 18px;
+  color: rgba(250,246,238,0.7);
+  margin-top: 24px;
+  line-height: 1.55;
+}
+.contact__channels {
+  margin-top: 40px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.contact__channel {
+  display: flex; align-items: center; gap: 14px;
+  color: rgba(250,246,238,0.85);
+  text-decoration: none;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 10px 0;
+  border-bottom: 1px dashed rgba(255,255,255,0.1);
+  transition: color 0.3s var(--ease);
+}
+.contact__channel:hover { color: var(--accent-2); }
+.contact__channel svg { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.7; }
+
+/* Form */
+.form {
+  display: grid;
+  gap: 16px;
+}
+.form__row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form__field { display: flex; flex-direction: column; gap: 6px; }
+.form__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(250,246,238,0.6);
+}
+.form__input, .form__select, .form__textarea {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--cream);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  outline: none;
+  transition: all 0.3s var(--ease);
+}
+.form__input:focus, .form__select:focus, .form__textarea:focus {
+  background: rgba(255,255,255,0.07);
+  border-color: var(--accent-2);
+  box-shadow: 0 0 0 3px rgba(184,92,47,0.15);
+}
+.form__textarea { min-height: 130px; resize: vertical; font-family: inherit; }
+.form__select option { background: var(--ink); color: var(--cream); }
+.form__hp { display: none; }
+.form__submit {
+  margin-top: 8px;
+  padding: 18px;
+  background: var(--accent);
+  color: var(--cream);
+  border: none;
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s var(--ease);
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.form__submit:hover { background: var(--accent-3); transform: translateY(-1px); box-shadow: 0 8px 20px rgba(184,92,47,0.4); }
+.form__submit:disabled { opacity: 0.5; cursor: not-allowed; }
+.form__msg {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  display: none;
+}
+.form__msg.success { background: rgba(74,124,90,0.2); color: #b9d4be; display: block; }
+.form__msg.error   { background: rgba(181,74,63,0.2); color: #f0b8b3; display: block; }
+
+/* Footer */
+.footer {
+  padding: 80px 40px 40px;
+  background: var(--ink);
+  color: rgba(250,246,238,0.7);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  position: relative;
+}
+.footer__grid {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 64px;
+  padding-bottom: 60px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.footer__brand {
+  font-family: var(--font-serif);
+  font-size: 36px;
+  font-variation-settings: 'opsz' 144, 'SOFT' 30;
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 12px;
+  color: var(--cream);
+}
+.footer__tag {
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: rgba(250,246,238,0.5);
+  font-size: 16px;
+  max-width: 320px;
+  line-height: 1.5;
+}
+.footer__col-h {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  margin-bottom: 20px;
+}
+.footer__link {
+  display: block;
+  padding: 6px 0;
+  color: rgba(250,246,238,0.7);
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.3s var(--ease);
+  cursor: pointer;
+  background: none; border: none; font-family: inherit;
+  text-align: left;
+}
+.footer__link:hover { color: var(--accent-2); }
+.footer__bottom {
+  max-width: 1400px;
+  margin: 30px auto 0;
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: rgba(250,246,238,0.4);
+  flex-wrap: wrap; gap: 16px;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 960px) {
+  .nav { padding: 14px 20px; }
+  .nav__sections { display: none; }
+  .nav.is-scrolled { padding: 10px 20px; }
+
+  .section__opener, .hero { padding: 60px 20px; }
+  .hero { padding-top: 100px; }
+
+  .guide__grid { grid-template-columns: repeat(6, 1fr); padding: 60px 20px; gap: 24px; }
+  .guide__block, .guide__block--third { grid-column: span 6; }
+
+  .dash__shell { grid-template-columns: 1fr; }
+  .dash__sidebar { position: static; height: auto; }
+  .dash__nav { display: flex; gap: 4px; overflow-x: auto; padding: 12px; }
+  .dash__nav-h { display: none; }
+  .dash__nav-item { white-space: nowrap; min-width: max-content; }
+  .dash__main { padding: 20px; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .dash-grid, .dash-grid--2col, .dash-grid--3col { grid-template-columns: 1fr; }
+
+  .manifesto, .services, .portfolio, .process, .pricing, .testimonials, .faq, .contact { padding: 80px 20px; }
+  .manifesto__inner, .faq__inner, .contact__inner { grid-template-columns: 1fr; gap: 40px; }
+  .manifesto__head, .faq__head, .contact__head { position: static; }
+
+  .services__grid, .pricing__grid { grid-template-columns: 1fr; }
+  .portfolio__grid { grid-template-columns: 1fr; }
+  .case--wide { grid-column: span 1; }
+  .case__visual { height: 220px; }
+
+  .form__row { grid-template-columns: 1fr; }
+  .footer__grid { grid-template-columns: 1fr 1fr; gap: 40px; }
+  .hero__sun { width: 320px; height: 320px; right: -20%; }
+  .utu-watermark--corner { display: none; }
+
+  .order-list__row { grid-template-columns: 1fr 80px; gap: 8px; font-size: 12px; }
+  .order-list__row > *:nth-child(1),
+  .order-list__row > *:nth-child(3),
+  .order-list__row > *:nth-child(4) { display: none; }
+  .order-list__row--head > * { display: none; }
+
+  .wa-float { padding: 12px 16px 12px 14px; font-size: 13px; bottom: 20px; right: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  html { scroll-behavior: auto; }
+}
+</style>
+</head>
+<body>
+
+<!-- ======================================================================
+     SCROLL PROGRESS
+====================================================================== -->
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<!-- ======================================================================
+     UTU WATERMARK · main parallax sun-disc + scales of justice
+     The four-rayed sun is the actual ancient Mesopotamian symbol of
+     Shamash (Utu) — sun god of justice. Paired here with a balance
+     beam representing his role as divine judge.
+====================================================================== -->
+<div class="utu-watermark utu-watermark--main" id="utuWatermark" aria-hidden="true">
+  <svg viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#b85c2f" stop-opacity="1"/>
+        <stop offset="60%" stop-color="#b85c2f" stop-opacity="0.5"/>
+        <stop offset="100%" stop-color="#b85c2f" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+
+    <!-- Outer halo -->
+    <circle cx="300" cy="300" r="280" fill="none" stroke="#b85c2f" stroke-width="1" opacity="0.4"/>
+    <circle cx="300" cy="300" r="240" fill="none" stroke="#b85c2f" stroke-width="0.5" opacity="0.6"/>
+
+    <!-- Rotating sun mark -->
+    <g class="utu-watermark__rotor" id="utuRotor">
+      <!-- The classic four-rayed Shamash disc with wavy rays between -->
+      <g>
+        <!-- Cardinal rays (the four straight rays of the sun-disc) -->
+        <path d="M300 60 L312 280 L300 290 L288 280 Z" fill="#b85c2f"/>
+        <path d="M300 540 L288 320 L300 310 L312 320 Z" fill="#b85c2f"/>
+        <path d="M60 300 L280 288 L290 300 L280 312 Z" fill="#b85c2f"/>
+        <path d="M540 300 L320 312 L310 300 L320 288 Z" fill="#b85c2f"/>
+
+        <!-- Wavy sun rays between the cardinals -->
+        <path d="M300 300 Q 380 130, 460 90 Q 400 200, 320 280 Z" fill="#b85c2f" opacity="0.85"/>
+        <path d="M300 300 Q 470 220, 510 140 Q 400 260, 320 300 Z" fill="#b85c2f" opacity="0.7"/>
+
+        <path d="M300 300 Q 470 380, 510 460 Q 400 340, 320 320 Z" fill="#b85c2f" opacity="0.85"/>
+        <path d="M300 300 Q 380 470, 460 510 Q 280 420, 280 320 Z" fill="#b85c2f" opacity="0.7"/>
+
+        <path d="M300 300 Q 220 470, 140 510 Q 200 400, 280 320 Z" fill="#b85c2f" opacity="0.85"/>
+        <path d="M300 300 Q 130 380, 90 460 Q 200 340, 280 300 Z" fill="#b85c2f" opacity="0.7"/>
+
+        <path d="M300 300 Q 130 220, 90 140 Q 200 260, 280 280 Z" fill="#b85c2f" opacity="0.85"/>
+        <path d="M300 300 Q 220 130, 140 90 Q 320 180, 320 280 Z" fill="#b85c2f" opacity="0.7"/>
+      </g>
+
+      <!-- Inner ring (the "ring" of the rod-and-ring justice symbol) -->
+      <circle cx="300" cy="300" r="80" fill="none" stroke="#b85c2f" stroke-width="3"/>
+      <circle cx="300" cy="300" r="65" fill="url(#sunGlow)"/>
+      <circle cx="300" cy="300" r="50" fill="#b85c2f"/>
+    </g>
+
+    <!-- The Scales of Justice — fixed, doesn't rotate (justice is constant) -->
+    <g transform="translate(300 300)" opacity="0.7">
+      <!-- Vertical staff (rod) -->
+      <line x1="0" y1="-200" x2="0" y2="200" stroke="#1a1715" stroke-width="2" opacity="0.4"/>
+
+      <!-- Cuneiform-inspired tick marks on the staff -->
+      <line x1="-6" y1="-180" x2="6" y2="-180" stroke="#1a1715" stroke-width="1.5" opacity="0.5"/>
+      <line x1="-6" y1="180" x2="6" y2="180" stroke="#1a1715" stroke-width="1.5" opacity="0.5"/>
+    </g>
+  </svg>
+</div>
+
+<!-- Corner watermark — small, always visible -->
+<div class="utu-watermark utu-watermark--corner" aria-hidden="true">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="50" cy="50" r="48" fill="none" stroke="#1a1715" stroke-width="0.8"/>
+    <g class="utu-watermark__rotor" id="utuCornerRotor">
+      <!-- Cardinal rays -->
+      <path d="M50 8 L53 42 L50 44 L47 42 Z" fill="#1a1715"/>
+      <path d="M50 92 L47 58 L50 56 L53 58 Z" fill="#1a1715"/>
+      <path d="M8 50 L42 47 L44 50 L42 53 Z" fill="#1a1715"/>
+      <path d="M92 50 L58 53 L56 50 L58 47 Z" fill="#1a1715"/>
+      <!-- Diagonal wavy rays -->
+      <path d="M50 50 Q 64 22, 78 14 Q 60 36, 52 48 Z" fill="#1a1715" opacity="0.7"/>
+      <path d="M50 50 Q 78 64, 86 78 Q 60 64, 52 52 Z" fill="#1a1715" opacity="0.7"/>
+      <path d="M50 50 Q 36 78, 22 86 Q 40 60, 48 52 Z" fill="#1a1715" opacity="0.7"/>
+      <path d="M50 50 Q 22 36, 14 22 Q 40 36, 48 48 Z" fill="#1a1715" opacity="0.7"/>
+    </g>
+    <circle cx="50" cy="50" r="12" fill="#1a1715"/>
+  </svg>
+</div>
+
+<!-- ======================================================================
+     NAVIGATION
+====================================================================== -->
+<nav class="nav" id="nav">
+  <div class="nav__brand" onclick="switchSection('marketing')">
+    <svg class="nav__brand-mark" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="16" cy="16" r="6" fill="#b85c2f"/>
+      <circle cx="16" cy="16" r="13" fill="none" stroke="#b85c2f" stroke-width="1.2"/>
+      <path d="M16 1v5M16 26v5M1 16h5M26 16h5M5.5 5.5l3.5 3.5M23 23l3.5 3.5M5.5 26.5l3.5-3.5M23 9l3.5-3.5" stroke="#b85c2f" stroke-width="1.2" stroke-linecap="round"/>
+    </svg>
+    Utu <small>STUDIO</small>
+  </div>
+  <div class="nav__sections">
+    <button class="nav__section-btn" data-section="styleguide" onclick="switchSection('styleguide')">01 · Style</button>
+    <button class="nav__section-btn" data-section="dashboard"  onclick="switchSection('dashboard')">02 · Product</button>
+    <button class="nav__section-btn active" data-section="marketing" onclick="switchSection('marketing')">03 · Studio</button>
+  </div>
+  <button class="nav__cta" onclick="scrollToContact()">
+    Start a project
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M3 7h8M7 3l4 4-4 4"/>
+    </svg>
+  </button>
+</nav>
+
+<!-- ======================================================================
+     SECTION 01 · STYLEGUIDE
+====================================================================== -->
+<section class="section" id="styleguide">
+  <header class="section__opener">
+    <div class="section__label">01 · Design Tokens</div>
+    <h1 class="section__title">A <em>system</em> of warmth.</h1>
+    <p class="section__subtitle">The visual grammar Utu builds against — every color, every weight, every shadow chosen so the work feels at once ancient and intentional. One source of truth, propagating across surfaces.</p>
+  </header>
+
+  <div class="guide__grid">
+    <!-- Colors -->
+    <div class="guide__block guide__block--full reveal">
+      <div class="guide__h">Palette</div>
+      <h2 class="guide__h2">Colors of paper, sun, and ink.</h2>
+      <div class="swatch-row">
+        <div class="swatch"><div class="swatch__color" style="background:#1a1715"></div><div class="swatch__meta"><div class="swatch__name">Ink</div><div class="swatch__hex">#1a1715</div></div></div>
+        <div class="swatch"><div class="swatch__color" style="background:#2a2521"></div><div class="swatch__meta"><div class="swatch__name">Ink soft</div><div class="swatch__hex">#2a2521</div></div></div>
+        <div class="swatch"><div class="swatch__color" style="background:#5a524b"></div><div class="swatch__meta"><div class="swatch__name">Ink mute</div><div class="swatch__hex">#5a524b</div></div></div>
+        <div class="swatch"><div class="swatch__color" style="background:#f5f0e8"></div><div class="swatch__meta"><div class="swatch__name">Paper</div><div class="swatch__hex">#f5f0e8</div></div></div>
+        <div class="swatch"><div class="swatch__color" style="background:#ede6da"></div><div class="swatch__meta"><div class="swatch__name">Paper-2</div><div class="swatch__hex">#ede6da</div></div></div>
+        <div class="swatch"><div class="swatch__color" style="background:#e3dac8"></div><div class="swatch__meta"><div class="swatch__name">Paper-3</div><div class="swatch__hex">#e3dac8</div></div></div>
+        <div class="swatch"><div class="swatch__color" style="background:#faf6ee"></div><div class="swatch__meta"><div class="swatch__name">Cream</div><div class="swatch__hex">#faf6ee</div></div></div>
+        <div class="swatch"><div class="swatch__color" style="background:#b85c2f"></div><div class="swatch__meta"><div class="swatch__name">Sienna</div><div class="swatch__hex">#b85c2f</div></div></div>
+        <div class="swatch"><div class="swatch__color" style="background:#d18067"></div><div class="swatch__meta"><div class="swatch__name">Coral</div><div class="swatch__hex">#d18067</div></div></div>
+        <div class="swatch"><div class="swatch__color" style="background:#8a3f1f"></div><div class="swatch__meta"><div class="swatch__name">Terracotta</div><div class="swatch__hex">#8a3f1f</div></div></div>
+        <div class="swatch"><div class="swatch__color" style="background:#c8a45a"></div><div class="swatch__meta"><div class="swatch__name">Gold</div><div class="swatch__hex">#c8a45a</div></div></div>
+        <div class="swatch"><div class="swatch__color" style="background:#524b8f"></div><div class="swatch__meta"><div class="swatch__name">Indigo</div><div class="swatch__hex">#524b8f</div></div></div>
+        <div class="swatch"><div class="swatch__color" style="background:#5a6648"></div><div class="swatch__meta"><div class="swatch__name">Moss</div><div class="swatch__hex">#5a6648</div></div></div>
+      </div>
+    </div>
+
+    <!-- Typography -->
+    <div class="guide__block reveal">
+      <div class="guide__h">Typography</div>
+      <h2 class="guide__h2">Voice: serif for soul, sans for speech.</h2>
+
+      <div class="type-spec">
+        <div class="type-spec__label">Display · Fraunces, opsz 144, italic, soft 100</div>
+        <div class="type-display">Sun &amp; <em>justice</em></div>
+      </div>
+
+      <div class="type-spec">
+        <div class="type-spec__label">Heading · Fraunces, opsz 96</div>
+        <div class="type-h1">Built where the river meets the press.</div>
+      </div>
+
+      <div class="type-spec">
+        <div class="type-spec__label">Body · Inter Tight 16/1.6</div>
+        <p class="type-body">A body sentence carries the rhythm of a quiet paragraph — settled, evenly weighted, chosen for endurance over flash. It reads like a printed page.</p>
+      </div>
+
+      <div class="type-spec">
+        <div class="type-spec__label">Mono · JetBrains Mono — for facts, codes, ledger entries</div>
+        <div class="type-mono">UTU-2024-Q3 · 47.3% MoM · IQD 1,420,000</div>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="guide__block reveal">
+      <div class="guide__h">Components</div>
+      <h2 class="guide__h2">Buttons — restrained, tactile, sure.</h2>
+      <div class="btn-row" style="margin-bottom:32px;">
+        <button class="btn btn--primary">Primary action <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7h8M7 3l4 4-4 4"/></svg></button>
+        <button class="btn btn--accent">Accent</button>
+        <button class="btn btn--ghost">Ghost</button>
+      </div>
+
+      <div class="demo-card">
+        <div class="demo-card__num">A · CARD</div>
+        <div class="demo-card__title">Considered, not loud.</div>
+        <div class="demo-card__body">Cards are the workhorse of the system. Subtle lift on hover, dashed dividers for tertiary structure, generous interior padding, and a single accent stroke when emphasis is required.</div>
+      </div>
+    </div>
+
+    <!-- Shadows / depth -->
+    <div class="guide__block guide__block--full reveal">
+      <div class="guide__h">Depth</div>
+      <h2 class="guide__h2">Shadow as light, not as effect.</h2>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:8px;">
+        <div style="background:var(--cream);height:140px;border-radius:var(--radius);box-shadow:var(--shadow-soft);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:11px;color:var(--ink-mute);letter-spacing:0.15em;">SHADOW · SOFT</div>
+        <div style="background:var(--cream);height:140px;border-radius:var(--radius);box-shadow:var(--shadow-lift);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:11px;color:var(--ink-mute);letter-spacing:0.15em;">SHADOW · LIFT</div>
+        <div style="background:var(--cream);height:140px;border-radius:var(--radius);box-shadow:var(--shadow-deep);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:11px;color:var(--ink-mute);letter-spacing:0.15em;">SHADOW · DEEP</div>
+        <div style="background:var(--paper-2);height:140px;border-radius:var(--radius);box-shadow:var(--shadow-press);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:11px;color:var(--ink-mute);letter-spacing:0.15em;">SHADOW · PRESS</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================================
+     SECTION 02 · DASHBOARD (live, interactive)
+====================================================================== -->
+<section class="section dash" id="dashboard">
+  <div class="dash__shell">
+    <!-- Sidebar -->
+    <aside class="dash__sidebar">
+      <div class="dash__brand">
+        <div class="dash__brand-glyph">S</div>
+        <div>
+          SwiftDrop
+          <small>OPS · BAGHDAD</small>
+        </div>
+      </div>
+      <nav class="dash__nav">
+        <div class="dash__nav-h">Operations</div>
+        <button class="dash__nav-item active" data-dash="overview"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5"/><rect x="9" y="2" width="5" height="5"/><rect x="2" y="9" width="5" height="5"/><rect x="9" y="9" width="5" height="5"/></svg>Overview <span class="pip">live</span></button>
+        <button class="dash__nav-item" data-dash="orders"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h12M2 12h8"/></svg>Orders <span class="pip">214</span></button>
+        <button class="dash__nav-item" data-dash="drivers"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="2.5"/><path d="M3 14c0-3 2.5-5 5-5s5 2 5 5"/></svg>Drivers <span class="pip">38</span></button>
+        <button class="dash__nav-item" data-dash="map"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l4-2 4 2 4-2v10l-4 2-4-2-4 2z"/><path d="M6 2v10M10 4v10"/></svg>Live map</button>
+
+        <div class="dash__nav-h">Insights</div>
+        <button class="dash__nav-item" data-dash="revenue"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12l3-3 3 2 4-5 2 1.5"/></svg>Revenue</button>
+        <button class="dash__nav-item" data-dash="customers"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="2"/><circle cx="11" cy="7" r="1.5"/><path d="M2 13c0-2 2-3.5 4-3.5s4 1.5 4 3.5M9 13c.5-1.5 2-2.5 3.5-2.5"/></svg>Customers</button>
+        <button class="dash__nav-item" data-dash="settings"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M8 2v2M8 12v2M2 8h2M12 8h2M3.5 3.5l1.5 1.5M11 11l1.5 1.5M3.5 12.5l1.5-1.5M11 5l1.5-1.5"/></svg>Settings</button>
+      </nav>
+    </aside>
+
+    <!-- Main -->
+    <main class="dash__main">
+      <header class="dash__header">
+        <div>
+          <h1 class="dash__title" id="dashTitle">Operations · Overview</h1>
+          <div class="dash__subtitle" id="dashSubtitle">Live · last sync 4 seconds ago</div>
+        </div>
+        <div class="dash__actions">
+          <div class="range-toggle" id="rangeToggle">
+            <button data-range="24h">24H</button>
+            <button data-range="7d" class="active">7D</button>
+            <button data-range="30d">30D</button>
+            <button data-range="90d">90D</button>
+          </div>
+          <div class="dash-search">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+            <input type="text" placeholder="Search orders, drivers, IDs…" id="dashSearch">
+          </div>
+        </div>
+      </header>
+
+      <!-- KPI tiles -->
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="kpi__label">Revenue · IQD</div>
+          <div class="kpi__val" id="kpiRevenue">14.2M</div>
+          <div class="kpi__delta kpi__delta--up">▲ <span id="kpiRevenueDelta">12.4%</span> vs prev</div>
+          <svg class="kpi__spark" viewBox="0 0 100 36" preserveAspectRatio="none">
+            <path id="sparkRevenue" d="" fill="none" stroke="#b85c2f" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div class="kpi">
+          <div class="kpi__label">Orders</div>
+          <div class="kpi__val" id="kpiOrders">2,148</div>
+          <div class="kpi__delta kpi__delta--up">▲ <span id="kpiOrdersDelta">8.2%</span> vs prev</div>
+          <svg class="kpi__spark" viewBox="0 0 100 36" preserveAspectRatio="none">
+            <path id="sparkOrders" d="" fill="none" stroke="#524b8f" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div class="kpi">
+          <div class="kpi__label">Avg delivery</div>
+          <div class="kpi__val" id="kpiTime">28<span style="font-size:18px;color:var(--ink-mute)"> min</span></div>
+          <div class="kpi__delta kpi__delta--down">▼ <span id="kpiTimeDelta">3.1 min</span> vs prev</div>
+          <svg class="kpi__spark" viewBox="0 0 100 36" preserveAspectRatio="none">
+            <path id="sparkTime" d="" fill="none" stroke="#5a6648" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div class="kpi">
+          <div class="kpi__label">Active drivers</div>
+          <div class="kpi__val" id="kpiDrivers">38<span style="font-size:18px;color:var(--ink-mute)">/52</span></div>
+          <div class="kpi__delta kpi__delta--up">▲ <span id="kpiDriversDelta">4 online</span> in 1h</div>
+          <svg class="kpi__spark" viewBox="0 0 100 36" preserveAspectRatio="none">
+            <path id="sparkDrivers" d="" fill="none" stroke="#c8a45a" stroke-width="1.5"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Main chart row -->
+      <div class="dash-grid">
+        <div class="panel">
+          <div class="panel__head">
+            <div>
+              <div class="panel__title">Revenue &amp; orders</div>
+              <div class="panel__meta" id="chartMeta">Last 7 days · IQD</div>
+            </div>
+            <div class="panel__legend">
+              <div class="legend-item" data-series="revenue">
+                <div class="legend-item__dot" style="background:#b85c2f"></div>Revenue
+              </div>
+              <div class="legend-item" data-series="orders">
+                <div class="legend-item__dot" style="background:#524b8f"></div>Orders
+              </div>
+            </div>
+          </div>
+          <div class="chart" id="mainChart">
+            <svg viewBox="0 0 600 280" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="revGrad" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stop-color="#b85c2f" stop-opacity="0.25"/>
+                  <stop offset="100%" stop-color="#b85c2f" stop-opacity="0"/>
+                </linearGradient>
+                <linearGradient id="ordGrad" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stop-color="#524b8f" stop-opacity="0.18"/>
+                  <stop offset="100%" stop-color="#524b8f" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <g id="chartGrid"></g>
+              <path id="revArea" fill="url(#revGrad)" d=""/>
+              <path id="revLine" fill="none" stroke="#b85c2f" stroke-width="2" d=""/>
+              <path id="ordArea" fill="url(#ordGrad)" d=""/>
+              <path id="ordLine" fill="none" stroke="#524b8f" stroke-width="2" stroke-dasharray="4 3" d=""/>
+              <g id="chartDots"></g>
+              <g id="chartHover"></g>
+            </svg>
+            <div class="chart__tooltip" id="chartTooltip">
+              <div class="chart__tooltip-label" id="ttLabel"></div>
+              <div class="chart__tooltip-val" id="ttVal"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel__head">
+            <div>
+              <div class="panel__title">By governorate</div>
+              <div class="panel__meta">Iraq operations</div>
+            </div>
+          </div>
+          <svg class="iraq-map" viewBox="0 0 400 320" id="iraqMap">
+            <!-- Simplified Iraq governorate shapes — abstracted, not geographic -->
+            <!-- Northern: Dohuk, Erbil, Sulaymaniyah, Nineveh, Kirkuk -->
+            <path class="region cool" d="M40 30 L120 25 L140 60 L100 80 L50 70 Z" data-region="Dohuk" data-orders="42"/>
+            <path class="region warm" d="M120 25 L210 30 L220 70 L140 60 Z" data-region="Erbil" data-orders="186"/>
+            <path class="region warm" d="M210 30 L290 40 L280 80 L220 70 Z" data-region="Sulaymaniyah" data-orders="142"/>
+            <path class="region cool" d="M50 70 L140 60 L150 110 L60 110 Z" data-region="Nineveh" data-orders="98"/>
+            <path class="region cool" d="M140 60 L220 70 L210 115 L150 110 Z" data-region="Kirkuk" data-orders="74"/>
+            <!-- Central: Anbar, Salah al-Din, Diyala, Baghdad -->
+            <path class="region cool" d="M30 110 L150 110 L160 180 L40 170 Z" data-region="Anbar" data-orders="56"/>
+            <path class="region cool" d="M150 110 L210 115 L215 165 L160 180 Z" data-region="Salah al-Din" data-orders="62"/>
+            <path class="region warm" d="M210 115 L280 80 L290 150 L215 165 Z" data-region="Diyala" data-orders="118"/>
+            <path class="region hot" d="M160 180 L215 165 L240 215 L180 230 Z" data-region="Baghdad" data-orders="864"/>
+            <!-- Southern: Babil, Karbala, Najaf, Wasit, Qadisiyyah, Maysan, Dhi Qar, Muthanna, Basra -->
+            <path class="region warm" d="M180 230 L240 215 L255 240 L200 255 Z" data-region="Babil" data-orders="184"/>
+            <path class="region cool" d="M40 170 L160 180 L180 230 L160 245 L60 240 Z" data-region="Karbala/Anbar S." data-orders="48"/>
+            <path class="region warm" d="M160 245 L200 255 L210 280 L150 285 Z" data-region="Najaf" data-orders="94"/>
+            <path class="region warm" d="M240 215 L290 150 L320 225 L255 240 Z" data-region="Wasit" data-orders="76"/>
+            <path class="region cool" d="M150 285 L210 280 L235 295 L165 305 Z" data-region="Qadisiyyah" data-orders="44"/>
+            <path class="region cool" d="M255 240 L320 225 L335 280 L275 290 Z" data-region="Maysan" data-orders="58"/>
+            <path class="region warm" d="M235 295 L275 290 L290 305 L240 312 Z" data-region="Dhi Qar" data-orders="102"/>
+            <path class="region cool" d="M165 305 L240 312 L235 295 Z" data-region="Muthanna" data-orders="36"/>
+            <path class="region warm" d="M290 305 L335 280 L355 300 L320 312 Z" data-region="Basra" data-orders="174"/>
+
+            <!-- Baghdad pin -->
+            <circle class="pin" cx="208" cy="200" r="4"/>
+            <text class="label" x="208" y="190">Baghdad</text>
+          </svg>
+          <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:11px;color:var(--ink-mute);padding-top:12px;border-top:1px dashed var(--line);margin-top:8px;">
+            <span>Hover regions for orders</span>
+            <span id="mapHover">Baghdad · 864 orders</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Drivers + recent orders -->
+      <div class="dash-grid">
+        <div class="panel">
+          <div class="panel__head">
+            <div>
+              <div class="panel__title">Recent orders</div>
+              <div class="panel__meta">Live feed · auto-refreshing</div>
+            </div>
+            <button class="btn btn--ghost" style="font-size:12px;padding:8px 14px;">Export ↓</button>
+          </div>
+          <div class="order-list" id="orderList">
+            <div class="order-list__row order-list__row--head">
+              <span>ID</span><span>Customer</span><span>Status</span><span>Stop</span><span>Amount</span>
+            </div>
+            <!-- rows injected by JS -->
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel__head">
+            <div>
+              <div class="panel__title">Top drivers</div>
+              <div class="panel__meta">Last 7 days</div>
+            </div>
+          </div>
+          <div id="driverList"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</section>
+
+<!-- ======================================================================
+     SECTION 03 · MARKETING (Studio)
+====================================================================== -->
+<section class="section active" id="marketing">
+  <!-- Hero -->
+  <div class="hero">
+    <!-- Parallax sun behind the hero -->
+    <div class="hero__sun parallax" data-parallax="0.3">
+      <svg viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="heroSun" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#b85c2f" stop-opacity="0.85"/>
+            <stop offset="60%" stop-color="#d18067" stop-opacity="0.5"/>
+            <stop offset="100%" stop-color="#c8a45a" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <circle cx="300" cy="300" r="280" fill="url(#heroSun)"/>
+        <g class="utu-watermark__rotor" id="utuHeroRotor" style="transform-origin:300px 300px">
+          <path d="M300 80 L310 290 L300 295 L290 290 Z" fill="#b85c2f" opacity="0.6"/>
+          <path d="M300 520 L290 310 L300 305 L310 310 Z" fill="#b85c2f" opacity="0.6"/>
+          <path d="M80 300 L290 290 L295 300 L290 310 Z" fill="#b85c2f" opacity="0.6"/>
+          <path d="M520 300 L310 310 L305 300 L310 290 Z" fill="#b85c2f" opacity="0.6"/>
+          <path d="M300 300 Q 380 150, 460 100 Q 380 220, 320 280 Z" fill="#b85c2f" opacity="0.4"/>
+          <path d="M300 300 Q 460 220, 510 150 Q 380 280, 320 300 Z" fill="#b85c2f" opacity="0.4"/>
+          <path d="M300 300 Q 460 380, 510 460 Q 380 320, 320 320 Z" fill="#b85c2f" opacity="0.4"/>
+          <path d="M300 300 Q 380 460, 460 510 Q 320 380, 280 320 Z" fill="#b85c2f" opacity="0.4"/>
+          <path d="M300 300 Q 220 460, 140 510 Q 220 380, 280 320 Z" fill="#b85c2f" opacity="0.4"/>
+          <path d="M300 300 Q 140 380, 90 460 Q 220 320, 280 300 Z" fill="#b85c2f" opacity="0.4"/>
+          <path d="M300 300 Q 140 220, 90 150 Q 220 280, 280 280 Z" fill="#b85c2f" opacity="0.4"/>
+          <path d="M300 300 Q 220 150, 140 100 Q 320 220, 320 280 Z" fill="#b85c2f" opacity="0.4"/>
+        </g>
+        <circle cx="300" cy="300" r="80" fill="none" stroke="#b85c2f" stroke-width="2" opacity="0.5"/>
+        <circle cx="300" cy="300" r="60" fill="#b85c2f" opacity="0.7"/>
+      </svg>
+    </div>
+
+    <div class="hero__content">
+      <div class="hero__eyebrow">Utu studio · Baghdad / Hay Aljameaa</div>
+      <h1 class="hero__h1">
+        Software with the <em>weight</em> of<br>
+        a <span class="strike">tool</span> a <em>verdict</em>.
+      </h1>
+      <p class="hero__lede">
+        Utu is the Mesopotamian sun god of <strong>justice</strong> — the one who saw clearly and judged fairly.
+        We build software the same way: considered, exact, and useful in a measurable way. Editorial design, engineering precision, and a refusal to ship busy work.
+      </p>
+      <div class="hero__cta-row">
+        <button class="btn btn--primary" onclick="scrollToContact()">
+          Start a project
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7h8M7 3l4 4-4 4"/></svg>
+        </button>
+        <button class="btn btn--ghost" onclick="switchSection('dashboard')">See live product →</button>
+      </div>
+
+      <div class="hero__meta-strip reveal--stagger">
+        <div>
+          <div class="hero__stat-num">12+</div>
+          <div class="hero__stat-lab">products shipped</div>
+        </div>
+        <div>
+          <div class="hero__stat-num">4 yrs</div>
+          <div class="hero__stat-lab">avg. client retention</div>
+        </div>
+        <div>
+          <div class="hero__stat-num">94%</div>
+          <div class="hero__stat-lab">NPS, last 12 months</div>
+        </div>
+        <div>
+          <div class="hero__stat-num">07</div>
+          <div class="hero__stat-lab">industries served</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Manifesto -->
+  <div class="manifesto">
+    <div class="manifesto__inner">
+      <div class="manifesto__head">
+        <div class="section__label">02 · Manifesto</div>
+        <h2 class="manifesto__h">Three <em>oaths</em> we keep.</h2>
+      </div>
+      <div>
+        <div class="manifesto__pillar reveal">
+          <div class="manifesto__pillar-num">I · CLARITY</div>
+          <h3 class="manifesto__pillar-h">Software should reduce confusion, not perform sophistication.</h3>
+          <p class="manifesto__pillar-body">Most products grow heavy because nobody is paid to remove things. We measure quality by what's missing — by the number of clicks the user didn't have to make, by the screens we didn't ship. Restraint is the discipline; clarity is the result.</p>
+        </div>
+        <div class="manifesto__pillar reveal">
+          <div class="manifesto__pillar-num">II · FAIRNESS</div>
+          <h3 class="manifesto__pillar-h">A tool is judged by the people who use it under pressure.</h3>
+          <p class="manifesto__pillar-body">Drivers in the rain. Operators on a deadline. The teenager who can't read English. We design for those moments, in those languages — Arabic-first when the work is for Iraq — and we test with the real users, not focus-grouped composites.</p>
+        </div>
+        <div class="manifesto__pillar reveal">
+          <div class="manifesto__pillar-num">III · ENDURANCE</div>
+          <h3 class="manifesto__pillar-h">We build to be still standing in five years.</h3>
+          <p class="manifesto__pillar-body">No fashionable frameworks for fashion's sake. No leaky abstractions. We pick boring, well-understood tools, write code our successors can read, and document like we'll be dead tomorrow. The work outlasts the trend that birthed it.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Services -->
+  <div class="services">
+    <div class="services__head reveal">
+      <div class="section__label">03 · Services</div>
+      <h2 class="manifesto__h">What we make.</h2>
+    </div>
+    <div class="services__grid">
+      <div class="service tilt">
+        <div class="service__hover-arrow">↗</div>
+        <div class="service__num">S1 · DESIGN</div>
+        <h3 class="service__h">Identity &amp; product systems</h3>
+        <p class="service__body">Brand grammar, design tokens, component libraries — the spine of a long-lived product. We deliver Figma libraries you can hand to engineering and not regret.</p>
+        <div class="service__tags">
+          <span class="service__tag">Figma</span>
+          <span class="service__tag">Tokens</span>
+          <span class="service__tag">DS</span>
+          <span class="service__tag">RTL</span>
+        </div>
+      </div>
+      <div class="service tilt">
+        <div class="service__hover-arrow">↗</div>
+        <div class="service__num">S2 · BUILD</div>
+        <h3 class="service__h">Web &amp; mobile apps</h3>
+        <p class="service__body">Marketing sites, dashboards, mobile apps — Arabic-first when needed. Built with Next.js, React Native, Postgres. Deployed and maintained, not just shipped and abandoned.</p>
+        <div class="service__tags">
+          <span class="service__tag">Next.js</span>
+          <span class="service__tag">React Native</span>
+          <span class="service__tag">Node</span>
+          <span class="service__tag">Postgres</span>
+        </div>
+      </div>
+      <div class="service tilt">
+        <div class="service__hover-arrow">↗</div>
+        <div class="service__num">S3 · OPERATE</div>
+        <h3 class="service__h">Ops dashboards &amp; pipelines</h3>
+        <p class="service__body">Logistics, retail, fintech operations consoles — the kind of tooling internal teams actually use. We sit with the operators before drawing a single screen.</p>
+        <div class="service__tags">
+          <span class="service__tag">Dashboards</span>
+          <span class="service__tag">ETL</span>
+          <span class="service__tag">Internal tools</span>
+        </div>
+      </div>
+      <div class="service tilt">
+        <div class="service__hover-arrow">↗</div>
+        <div class="service__num">S4 · ADVISE</div>
+        <h3 class="service__h">Product strategy</h3>
+        <p class="service__body">Two-week scoping engagements. We listen, we map, we leave you with a written plan and a realistic budget. No slide decks dressed as work.</p>
+        <div class="service__tags">
+          <span class="service__tag">Discovery</span>
+          <span class="service__tag">Roadmap</span>
+          <span class="service__tag">Scoping</span>
+        </div>
+      </div>
+      <div class="service tilt">
+        <div class="service__hover-arrow">↗</div>
+        <div class="service__num">S5 · INTEGRATE</div>
+        <h3 class="service__h">AI &amp; automation</h3>
+        <p class="service__body">Pragmatic AI: text classification, document parsing, customer-support drafts. We say no to the projects that don't need it. Most don't.</p>
+        <div class="service__tags">
+          <span class="service__tag">LLMs</span>
+          <span class="service__tag">RAG</span>
+          <span class="service__tag">Workflows</span>
+        </div>
+      </div>
+      <div class="service tilt">
+        <div class="service__hover-arrow">↗</div>
+        <div class="service__num">S6 · MAINTAIN</div>
+        <h3 class="service__h">Care &amp; iteration</h3>
+        <p class="service__body">Monthly retainer. Bug triage, feature work, infra hygiene. Same designers, same engineers — never juniors handed off as a "support tier."</p>
+        <div class="service__tags">
+          <span class="service__tag">Retainer</span>
+          <span class="service__tag">SLA</span>
+          <span class="service__tag">SRE</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Portfolio -->
+  <div class="portfolio">
+    <div class="portfolio__head reveal">
+      <div class="section__label">04 · Selected work</div>
+      <h2 class="manifesto__h">A small <em>quiet</em> body of work.</h2>
+    </div>
+    <div class="portfolio__grid">
+      <div class="case case--wide tilt reveal">
+        <div class="case__visual">
+          <svg class="case__visual-svg" viewBox="0 0 600 360" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <linearGradient id="cv1" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#1a1715"/>
+                <stop offset="100%" stop-color="#2a2521"/>
+              </linearGradient>
+            </defs>
+            <rect width="600" height="360" fill="url(#cv1)"/>
+            <!-- Mock dashboard inside -->
+            <rect x="40" y="40" width="520" height="60" rx="8" fill="#3a3530"/>
+            <rect x="40" y="120" width="245" height="220" rx="8" fill="#3a3530"/>
+            <rect x="305" y="120" width="120" height="105" rx="8" fill="#b85c2f"/>
+            <rect x="305" y="235" width="120" height="105" rx="8" fill="#3a3530"/>
+            <rect x="445" y="120" width="115" height="220" rx="8" fill="#3a3530"/>
+            <!-- Lines -->
+            <path d="M60 280 Q 100 220, 140 240 T 220 200 T 280 230" fill="none" stroke="#b85c2f" stroke-width="2"/>
+            <text x="320" y="170" font-family="Fraunces" font-size="32" fill="#faf6ee" font-style="italic">14.2M</text>
+          </svg>
+        </div>
+        <div class="case__body">
+          <div class="case__meta">
+            <span class="case__meta-tag">Logistics</span>
+            <span class="case__meta-tag">Mobile + web</span>
+            <span class="case__meta-tag">2024 — present</span>
+          </div>
+          <h3 class="case__h">SwiftDrop · operations console for Iraq's fastest courier network</h3>
+          <p class="case__lede">Driver app, dispatcher dashboard, customer tracking, IQD billing pipeline. Arabic-first. Replaced a fragmented WhatsApp + spreadsheets workflow across 11 governorates.</p>
+          <div class="case__metrics">
+            <div><div class="case__metric-num">38min → 24min</div><div class="case__metric-lab">avg delivery time</div></div>
+            <div><div class="case__metric-num">6.4×</div><div class="case__metric-lab">orders/driver/day</div></div>
+            <div><div class="case__metric-num">94%</div><div class="case__metric-lab">on-time SLA</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="case tilt reveal">
+        <div class="case__visual">
+          <svg class="case__visual-svg" viewBox="0 0 600 360" preserveAspectRatio="xMidYMid slice">
+            <rect width="600" height="360" fill="#ede6da"/>
+            <circle cx="300" cy="180" r="120" fill="#b85c2f" opacity="0.15"/>
+            <circle cx="300" cy="180" r="80" fill="#b85c2f" opacity="0.3"/>
+            <circle cx="300" cy="180" r="40" fill="#b85c2f"/>
+            <text x="300" y="328" font-family="Fraunces" font-size="22" fill="#1a1715" text-anchor="middle" font-style="italic">Mizaan · ميزان</text>
+          </svg>
+        </div>
+        <div class="case__body">
+          <div class="case__meta">
+            <span class="case__meta-tag">Fintech</span>
+            <span class="case__meta-tag">Web app</span>
+          </div>
+          <h3 class="case__h">Mizaan — small-business accounting, in Arabic.</h3>
+          <p class="case__lede">A lightweight ledger app for shop owners. Receipts photographed, parsed, reconciled. The kind of tool an accountant doesn't laugh at.</p>
+        </div>
+      </div>
+
+      <div class="case tilt reveal">
+        <div class="case__visual">
+          <svg class="case__visual-svg" viewBox="0 0 600 360" preserveAspectRatio="xMidYMid slice">
+            <rect width="600" height="360" fill="#1a1715"/>
+            <g stroke="#c8a45a" stroke-width="0.6" fill="none" opacity="0.5">
+              <line x1="0" y1="60" x2="600" y2="60"/>
+              <line x1="0" y1="120" x2="600" y2="120"/>
+              <line x1="0" y1="180" x2="600" y2="180"/>
+              <line x1="0" y1="240" x2="600" y2="240"/>
+              <line x1="0" y1="300" x2="600" y2="300"/>
+            </g>
+            <text x="300" y="180" font-family="Fraunces" font-size="56" fill="#faf6ee" text-anchor="middle" font-style="italic">Lira</text>
+            <text x="300" y="220" font-family="JetBrains Mono" font-size="11" fill="#c8a45a" text-anchor="middle" letter-spacing="4">EDITORIAL · 2024</text>
+          </svg>
+        </div>
+        <div class="case__body">
+          <div class="case__meta">
+            <span class="case__meta-tag">Editorial</span>
+            <span class="case__meta-tag">CMS</span>
+          </div>
+          <h3 class="case__h">Lira — a longform reading magazine.</h3>
+          <p class="case__lede">A reading-first publication system. Custom typography, distraction-free composition, reader-first analytics that don't track you to bed.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Process -->
+  <div class="process">
+    <div class="process__head reveal">
+      <div class="section__label">05 · How we work</div>
+      <h2 class="manifesto__h">Four <em>movements</em>.</h2>
+    </div>
+    <div class="process__rail">
+      <div class="process__step reveal">
+        <div class="process__node">i</div>
+        <div>
+          <h3 class="process__step-h">Listen</h3>
+          <p class="process__step-body">A two-week paid discovery. We sit with the people who'll use the thing. We read your spreadsheets. We don't bring a deck.</p>
+        </div>
+      </div>
+      <div class="process__step reveal">
+        <div class="process__node">ii</div>
+        <div>
+          <h3 class="process__step-h">Frame</h3>
+          <p class="process__step-body">A written scope: what we're building, what we're not, what it costs, and when. Signed by both sides like a real contract.</p>
+        </div>
+      </div>
+      <div class="process__step reveal">
+        <div class="process__node">iii</div>
+        <div>
+          <h3 class="process__step-h">Build</h3>
+          <p class="process__step-body">Two-week sprints. Demos every Friday. You see the work as it forms; we don't disappear for six months and reappear with a reveal.</p>
+        </div>
+      </div>
+      <div class="process__step reveal">
+        <div class="process__node">iv</div>
+        <div>
+          <h3 class="process__step-h">Tend</h3>
+          <p class="process__step-body">After launch, monthly retainer or a clean handoff to your team — your call. Either way, we leave the codebase someone else could pick up.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pricing -->
+  <div class="pricing">
+    <div class="pricing__head reveal">
+      <div class="section__label">06 · Engagements</div>
+      <h2 class="manifesto__h">Three ways to <em>start</em>.</h2>
+    </div>
+    <div class="pricing__grid">
+      <div class="tier reveal">
+        <div class="tier__name">Audit</div>
+        <div class="tier__price">$2.4k <small>fixed</small></div>
+        <p class="tier__desc">A one-week deep-read of your existing product, with a written report.</p>
+        <ul class="tier__list">
+          <li>Heuristic review &amp; audit</li>
+          <li>Code &amp; architecture skim</li>
+          <li>Roadmap &amp; risk memo</li>
+          <li>One 90-min walk-through</li>
+        </ul>
+        <button class="tier__cta" onclick="scrollToContact()">Book an audit</button>
+      </div>
+
+      <div class="tier tier--featured reveal">
+        <div class="tier__name">Studio</div>
+        <div class="tier__price">$8k <small>/ month</small></div>
+        <p class="tier__desc">A fractional design + engineering team. Two-week sprints, weekly demos, work as it forms.</p>
+        <ul class="tier__list">
+          <li>1 designer + 2 engineers</li>
+          <li>Sprint-based delivery</li>
+          <li>Weekly demo + retro</li>
+          <li>Cancel any month, 14 days' notice</li>
+          <li>Direct line to the studio</li>
+        </ul>
+        <button class="tier__cta" onclick="scrollToContact()">Start a studio engagement</button>
+      </div>
+
+      <div class="tier reveal">
+        <div class="tier__name">Project</div>
+        <div class="tier__price">From $24k</div>
+        <p class="tier__desc">A scoped, fixed-price build for a defined product or surface.</p>
+        <ul class="tier__list">
+          <li>Written scope &amp; price</li>
+          <li>Milestone-based payments</li>
+          <li>Hand-off &amp; documentation</li>
+          <li>30-day post-launch support</li>
+        </ul>
+        <button class="tier__cta" onclick="scrollToContact()">Scope a project</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Testimonials -->
+  <div class="testimonials">
+    <div class="testimonials__head reveal" style="padding:0 40px;">
+      <div class="section__label">07 · Words from the field</div>
+      <h2 class="manifesto__h">What people <em>actually</em> say.</h2>
+    </div>
+    <div class="testimonials__rail">
+      <div class="testimony">
+        <p class="testimony__quote">They asked us harder questions than our own board does. The dashboard they built is the only one our drivers will actually open. That's worth saying.</p>
+        <div class="testimony__author">
+          <div class="testimony__avatar">HK</div>
+          <div>
+            <div class="testimony__name">Hassan Karim</div>
+            <div class="testimony__role">COO · SwiftDrop Logistics</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimony">
+        <p class="testimony__quote">An Arabic-first product that didn't feel like a translation. That's so rare here it almost felt like a trick at first.</p>
+        <div class="testimony__author">
+          <div class="testimony__avatar">RA</div>
+          <div>
+            <div class="testimony__name">Reem al-Saadi</div>
+            <div class="testimony__role">Founder · Mizaan</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimony">
+        <p class="testimony__quote">We've worked with three studios before this one. Utu was the only one that said no to a feature. We hired them because of that.</p>
+        <div class="testimony__author">
+          <div class="testimony__avatar">MJ</div>
+          <div>
+            <div class="testimony__name">Marwan Jabari</div>
+            <div class="testimony__role">Head of Product · Lira</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimony">
+        <p class="testimony__quote">Considered. That's the word. Every screen feels like someone thought about it for an hour longer than they had to.</p>
+        <div class="testimony__author">
+          <div class="testimony__avatar">SN</div>
+          <div>
+            <div class="testimony__name">Sara Nawaf</div>
+            <div class="testimony__role">CTO · regional fintech</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="faq">
+    <div class="faq__inner">
+      <div class="faq__head">
+        <div class="section__label">08 · Questions</div>
+        <h2 class="manifesto__h">Honest <em>answers</em>.</h2>
+        <p style="color:var(--ink-mute);margin-top:20px;font-size:15px;line-height:1.65;">If yours isn't here, ask it directly — the contact form a few sections down lands in the founder's inbox.</p>
+      </div>
+      <div class="faq__list">
+        <div class="faq__item">
+          <button class="faq__q">Where are you based, and do you work remotely?<span class="faq__q-icon">+</span></button>
+          <div class="faq__a"><p style="padding-top:0;">Baghdad — Hay Aljameaa. We work with clients across Iraq, the Gulf, and Europe. Most engagements are remote-first with one or two in-person workshops if travel makes sense.</p></div>
+        </div>
+        <div class="faq__item">
+          <button class="faq__q">Do you take on small projects?<span class="faq__q-icon">+</span></button>
+          <div class="faq__a"><p>Yes — the $2.4k audit is built for this. Beyond that, projects under $10k usually aren't worth either side's overhead. We'll tell you that on the first call.</p></div>
+        </div>
+        <div class="faq__item">
+          <button class="faq__q">Arabic-first — what does that mean exactly?<span class="faq__q-icon">+</span></button>
+          <div class="faq__a"><p>It means RTL is the default layout, not a port. It means typography choices are made for the Arabic glyph first. It means the people doing UX research speak the language of the people they're researching. Most studios bolt Arabic onto a Latin design; we don't.</p></div>
+        </div>
+        <div class="faq__item">
+          <button class="faq__q">What stack do you build on?<span class="faq__q-icon">+</span></button>
+          <div class="faq__a"><p>Default: Next.js, TypeScript, Postgres, Tailwind. Mobile: React Native or, when justified, native Swift/Kotlin. Backend: Node or Python depending on the team you'll inherit. We pick boring tools. We pick stable tools.</p></div>
+        </div>
+        <div class="faq__item">
+          <button class="faq__q">Do you sign NDAs?<span class="faq__q-icon">+</span></button>
+          <div class="faq__a"><p>Mutual NDAs, yes. One-sided ones we'll politely push back on; the lawyer who drafted them usually agrees once we explain the asymmetry.</p></div>
+        </div>
+        <div class="faq__item">
+          <button class="faq__q">What's the studio's name about?<span class="faq__q-icon">+</span></button>
+          <div class="faq__a"><p>Utu (Sumerian) / Shamash (Akkadian) is the Mesopotamian sun god — the divine judge who saw clearly and gave fair verdicts. The four-rayed sun-disc you see throughout the site is his actual ancient symbol. The name is a quiet reminder of what good software does: lights things up, judges fairly, doesn't lie.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contact -->
+  <div class="contact" id="contact">
+    <div class="contact__inner">
+      <div class="contact__head">
+        <div class="section__label" style="color:var(--accent-2)">09 · Start something</div>
+        <h2 class="contact__h">Tell us what you're <em>making</em>.</h2>
+        <p class="contact__lede">A few sentences are enough. We read every message, reply within two business days, and never sub-contract the conversation.</p>
+        <div class="contact__channels">
+          <a class="contact__channel" href="https://wa.me/9647838896681" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4l-2-1c-.3-.1-.6 0-.7.2l-.6.8c-.2.2-.5.3-.7.2-.5-.2-1.3-.6-2-1.3-.7-.7-1.1-1.5-1.3-2-.1-.2 0-.5.2-.7l.7-.6c.2-.1.3-.4.2-.7l-1-2c-.2-.3-.6-.5-.9-.3-.7.3-1.4.8-1.7 1.4-.6 1.2-.6 3 1.6 5.3 2.2 2.2 4 2.2 5.3 1.6.6-.3 1.1-1 1.4-1.7.2-.4 0-.8-.3-.9zM12 2C6.5 2 2 6.5 2 12c0 1.7.4 3.3 1.2 4.7L2 22l5.4-1.2c1.4.8 3 1.2 4.6 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18.3c-1.5 0-2.9-.4-4.2-1.1l-.3-.2-3 .7.7-2.9-.2-.3c-.7-1.3-1.2-2.7-1.2-4.2 0-4.6 3.7-8.3 8.3-8.3 4.6 0 8.3 3.7 8.3 8.3-.1 4.6-3.8 8-8.4 8z"/></svg>
+            +964 783 889 6681 · WhatsApp
+          </a>
+          <a class="contact__channel" href="mailto:ayoa.naser96@gmail.com">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3.5" width="12" height="9" rx="1"/><path d="M2.5 4.5l5.5 4 5.5-4"/></svg>
+            ayoa.naser96@gmail.com
+          </a>
+          <a class="contact__channel" href="#">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 14s5-4 5-8a5 5 0 0 0-10 0c0 4 5 8 5 8z"/><circle cx="8" cy="6" r="2"/></svg>
+            Baghdad · Hay Aljameaa
+          </a>
+        </div>
+      </div>
+
+      <form class="form" id="contactForm" novalidate>
+        <div class="form__row">
+          <div class="form__field">
+            <label class="form__label" for="f-name">Name</label>
+            <input class="form__input" id="f-name" name="name" type="text" required minlength="2">
+          </div>
+          <div class="form__field">
+            <label class="form__label" for="f-email">Email</label>
+            <input class="form__input" id="f-email" name="email" type="email" required>
+          </div>
+        </div>
+        <div class="form__row">
+          <div class="form__field">
+            <label class="form__label" for="f-phone">Phone (optional)</label>
+            <input class="form__input" id="f-phone" name="phone" type="tel" placeholder="+964…">
+          </div>
+          <div class="form__field">
+            <label class="form__label" for="f-company">Company (optional)</label>
+            <input class="form__input" id="f-company" name="company" type="text">
+          </div>
+        </div>
+        <div class="form__row">
+          <div class="form__field">
+            <label class="form__label" for="f-type">Project type</label>
+            <select class="form__select" id="f-type" name="project_type">
+              <option>Product strategy / scoping</option>
+              <option>Web application</option>
+              <option>Mobile app</option>
+              <option>Operations dashboard</option>
+              <option>Brand &amp; design system</option>
+              <option>Other / not sure yet</option>
+            </select>
+          </div>
+          <div class="form__field">
+            <label class="form__label" for="f-budget">Budget range</label>
+            <select class="form__select" id="f-budget" name="budget">
+              <option>Under $5k (audit)</option>
+              <option>$5k–$25k</option>
+              <option>$25k–$75k</option>
+              <option>$75k+</option>
+              <option>Retainer (monthly)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form__field">
+          <label class="form__label" for="f-message">What are you making?</label>
+          <textarea class="form__textarea" id="f-message" name="message" required minlength="10" placeholder="A few sentences. What you're trying to do, who it's for, and any constraint we should know about."></textarea>
+        </div>
+        <!-- honeypot -->
+        <div class="form__hp"><label>Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+
+        <button type="submit" class="form__submit" id="formSubmit">
+          Send inquiry
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+        </button>
+        <div class="form__msg" id="formMsg"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer__grid">
+      <div>
+        <div class="footer__brand">
+          <svg width="32" height="32" viewBox="0 0 32 32">
+            <circle cx="16" cy="16" r="6" fill="#b85c2f"/>
+            <circle cx="16" cy="16" r="13" fill="none" stroke="#b85c2f" stroke-width="1.2"/>
+            <path d="M16 1v5M16 26v5M1 16h5M26 16h5M5.5 5.5l3.5 3.5M23 23l3.5 3.5M5.5 26.5l3.5-3.5M23 9l3.5-3.5" stroke="#b85c2f" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          Utu
+        </div>
+        <p class="footer__tag">Software with the weight of a verdict. Designed and built in Baghdad. Named for the sun god of justice.</p>
+      </div>
+      <div>
+        <div class="footer__col-h">Studio</div>
+        <button class="footer__link" onclick="switchSection('marketing')">About</button>
+        <button class="footer__link" onclick="switchSection('marketing'); setTimeout(()=>document.querySelector('.services').scrollIntoView({behavior:'smooth'}),120)">Services</button>
+        <button class="footer__link" onclick="switchSection('marketing'); setTimeout(()=>document.querySelector('.portfolio').scrollIntoView({behavior:'smooth'}),120)">Work</button>
+        <button class="footer__link" onclick="scrollToContact()">Contact</button>
+      </div>
+      <div>
+        <div class="footer__col-h">Surfaces</div>
+        <button class="footer__link" onclick="switchSection('styleguide')">01 · Style</button>
+        <button class="footer__link" onclick="switchSection('dashboard')">02 · Product</button>
+        <button class="footer__link" onclick="switchSection('marketing')">03 · Studio</button>
+      </div>
+      <div>
+        <div class="footer__col-h">Reach us</div>
+        <a class="footer__link" href="https://wa.me/9647838896681" target="_blank" rel="noopener">WhatsApp</a>
+        <a class="footer__link" href="mailto:ayoa.naser96@gmail.com">Email</a>
+        <a class="footer__link" href="#">Baghdad · Hay Aljameaa</a>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>© 2026 Utu studio · designed by dev.aya</span>
+      <span>The sun-disc mark is Shamash · ancient Mesopotamian symbol of justice.</span>
+    </div>
+  </footer>
+</section>
+
+<!-- Floating WhatsApp -->
+<a class="wa-float" href="https://wa.me/9647838896681" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+  <span class="wa-float__pulse"></span>
+  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4l-2-1c-.3-.1-.6 0-.7.2l-.6.8c-.2.2-.5.3-.7.2-.5-.2-1.3-.6-2-1.3-.7-.7-1.1-1.5-1.3-2-.1-.2 0-.5.2-.7l.7-.6c.2-.1.3-.4.2-.7l-1-2c-.2-.3-.6-.5-.9-.3-.7.3-1.4.8-1.7 1.4-.6 1.2-.6 3 1.6 5.3 2.2 2.2 4 2.2 5.3 1.6.6-.3 1.1-1 1.4-1.7.2-.4 0-.8-.3-.9zM12 2C6.5 2 2 6.5 2 12c0 1.7.4 3.3 1.2 4.7L2 22l5.4-1.2c1.4.8 3 1.2 4.6 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18.3c-1.5 0-2.9-.4-4.2-1.1l-.3-.2-3 .7.7-2.9-.2-.3c-.7-1.3-1.2-2.7-1.2-4.2 0-4.6 3.7-8.3 8.3-8.3 4.6 0 8.3 3.7 8.3 8.3-.1 4.6-3.8 8-8.4 8z"/></svg>
+  Talk on WhatsApp
+</a>
+
+<!-- ======================================================================
+     JS · section switching, scroll-linked motion, dashboard, form
+====================================================================== -->
+<script>
+// API base — same origin when served from backend, or localhost during static dev
+const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.protocol === 'file:')
+  ? 'http://localhost:4000'
+  : '';
+
+// ===== Section switching =====
+function switchSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.toggle('active', s.id === id));
+  document.querySelectorAll('.nav__section-btn').forEach(b => b.classList.toggle('active', b.dataset.section === id));
+  window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+  document.documentElement.style.scrollBehavior = 'smooth';
+  // Re-trigger reveal observer for newly visible content
+  setTimeout(() => observeReveals(), 50);
+  // Re-init dashboard charts if dashboard is now active
+  if (id === 'dashboard') setTimeout(initDashboard, 60);
+}
+function scrollToContact() {
+  switchSection('marketing');
+  setTimeout(() => {
+    document.getElementById('contact').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 120);
+}
+
+// ===== Scroll progress + nav state =====
+const nav = document.getElementById('nav');
+const progress = document.getElementById('scrollProgress');
+function onScroll() {
+  const h = document.documentElement;
+  const pct = h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight);
+  progress.style.width = (pct * 100) + '%';
+  nav.classList.toggle('is-scrolled', h.scrollTop > 20);
+  applyParallax();
+  applyWatermarkRotation();
+}
+window.addEventListener('scroll', onScroll, { passive: true });
+
+// ===== Parallax =====
+const parallaxEls = () => document.querySelectorAll('.parallax');
+function applyParallax() {
+  const y = window.scrollY;
+  parallaxEls().forEach(el => {
+    const speed = parseFloat(el.dataset.parallax) || 0.2;
+    el.style.transform = `translate3d(0, ${y * speed}px, 0)`;
+  });
+}
+
+// ===== Watermark — rotates with scroll (Utu's daily journey) =====
+function applyWatermarkRotation() {
+  const y = window.scrollY;
+  const r = y * 0.05; // gentle
+  ['utuRotor', 'utuCornerRotor', 'utuHeroRotor'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.transform = `rotate(${r}deg)`;
+  });
+  // Watermark fades a touch as the user scrolls into a section
+  const wm = document.getElementById('utuWatermark');
+  if (wm) {
+    const baseOp = 0.055;
+    const variance = Math.sin(y * 0.001) * 0.02;
+    wm.style.opacity = (baseOp + variance).toFixed(3);
+  }
+}
+
+// ===== Reveal-on-scroll =====
+let revealObserver;
+function observeReveals() {
+  if (revealObserver) revealObserver.disconnect();
+  revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('is-visible');
+        revealObserver.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -10% 0px' });
+  document.querySelectorAll('.reveal, .reveal--stagger').forEach(el => {
+    if (!el.classList.contains('is-visible')) revealObserver.observe(el);
+  });
+}
+
+// ===== Tilt =====
+function setupTilt() {
+  document.querySelectorAll('.tilt').forEach(el => {
+    el.addEventListener('mousemove', (e) => {
+      const r = el.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      el.style.transform = `perspective(1000px) rotateX(${y * -3}deg) rotateY(${x * 3}deg) translateZ(0)`;
+    });
+    el.addEventListener('mouseleave', () => { el.style.transform = ''; });
+  });
+}
+
+// ===== FAQ accordion =====
+document.querySelectorAll('.faq__q').forEach(q => {
+  q.addEventListener('click', () => q.parentElement.classList.toggle('open'));
+});
+
+// ============================================================
+// DASHBOARD · live, interactive
+// ============================================================
+let dashState = {
+  range: '7d',
+  view: 'overview',
+  initialized: false,
+  liveTimer: null,
+};
+
+function rangeData(range) {
+  // Synthetic but plausible time series for the demo
+  const base = {
+    '24h': { points: 24, labelFmt: i => i + ':00', revenueBase: 590e3, ordersBase: 90,  multiplier: 0.04, days: 1 },
+    '7d':  { points: 7,  labelFmt: i => ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][i], revenueBase: 2e6, ordersBase: 305, multiplier: 0.18, days: 7 },
+    '30d': { points: 30, labelFmt: i => 'D' + (i+1), revenueBase: 1.4e6, ordersBase: 220, multiplier: 0.22, days: 30 },
+    '90d': { points: 12, labelFmt: i => 'W' + (i+1), revenueBase: 8.6e6, ordersBase: 1450, multiplier: 0.3, days: 90 },
+  }[range];
+
+  // Deterministic pseudo-random so the chart doesn't change on re-render
+  const seed = range.length * 13;
+  const rand = (i) => {
+    const x = Math.sin(i * 9301 + seed * 49297) * 233280;
+    return x - Math.floor(x);
+  };
+
+  const data = [];
+  for (let i = 0; i < base.points; i++) {
+    const wave = Math.sin(i / base.points * Math.PI * 1.6) * 0.4 + 0.6;
+    const noise = (rand(i) - 0.5) * base.multiplier * 2;
+    data.push({
+      label: base.labelFmt(i),
+      revenue: Math.round(base.revenueBase * (wave + noise)),
+      orders:  Math.round(base.ordersBase  * (wave + noise * 0.6)),
+    });
+  }
+  return data;
+}
+
+function drawChart(data) {
+  const W = 600, H = 280, P = { l: 40, r: 20, t: 16, b: 32 };
+  const innerW = W - P.l - P.r, innerH = H - P.t - P.b;
+
+  const maxRev = Math.max(...data.map(d => d.revenue));
+  const maxOrd = Math.max(...data.map(d => d.orders));
+
+  const xStep = innerW / (data.length - 1);
+  const xs = data.map((_, i) => P.l + i * xStep);
+  const ysRev = data.map(d => P.t + innerH - (d.revenue / maxRev) * innerH);
+  const ysOrd = data.map(d => P.t + innerH - (d.orders / maxOrd) * innerH);
+
+  const linePath = (xs, ys) => xs.map((x, i) => (i === 0 ? `M${x} ${ys[i]}` : `L${x} ${ys[i]}`)).join(' ');
+  const areaPath = (xs, ys) => `M${xs[0]} ${P.t + innerH} ` +
+                                xs.map((x, i) => `L${x} ${ys[i]}`).join(' ') +
+                                ` L${xs[xs.length-1]} ${P.t + innerH} Z`;
+
+  document.getElementById('revLine').setAttribute('d', linePath(xs, ysRev));
+  document.getElementById('revArea').setAttribute('d', areaPath(xs, ysRev));
+  document.getElementById('ordLine').setAttribute('d', linePath(xs, ysOrd));
+  document.getElementById('ordArea').setAttribute('d', areaPath(xs, ysOrd));
+
+  // grid
+  const grid = document.getElementById('chartGrid');
+  grid.innerHTML = '';
+  for (let i = 0; i <= 4; i++) {
+    const y = P.t + (innerH / 4) * i;
+    grid.insertAdjacentHTML('beforeend',
+      `<line x1="${P.l}" y1="${y}" x2="${P.l + innerW}" y2="${y}" stroke="rgba(26,23,21,0.06)" stroke-width="1"/>`);
+  }
+  // x-labels
+  data.forEach((d, i) => {
+    grid.insertAdjacentHTML('beforeend',
+      `<text x="${xs[i]}" y="${H - 10}" font-family="JetBrains Mono" font-size="10" fill="#5a524b" text-anchor="middle">${d.label}</text>`);
+  });
+
+  // dots + hover targets
+  const dotsG = document.getElementById('chartDots');
+  const hoverG = document.getElementById('chartHover');
+  dotsG.innerHTML = ''; hoverG.innerHTML = '';
+  data.forEach((d, i) => {
+    dotsG.insertAdjacentHTML('beforeend',
+      `<circle cx="${xs[i]}" cy="${ysRev[i]}" r="3" fill="#b85c2f"/>` +
+      `<circle cx="${xs[i]}" cy="${ysOrd[i]}" r="3" fill="#524b8f"/>`);
+    hoverG.insertAdjacentHTML('beforeend',
+      `<rect x="${xs[i] - xStep/2}" y="${P.t}" width="${xStep}" height="${innerH}" fill="transparent" data-i="${i}" style="cursor:pointer"/>`);
+  });
+
+  // Tooltip
+  const tt = document.getElementById('chartTooltip');
+  const ttLabel = document.getElementById('ttLabel');
+  const ttVal = document.getElementById('ttVal');
+  hoverG.querySelectorAll('rect').forEach(r => {
+    r.addEventListener('mouseenter', (e) => {
+      const i = +r.dataset.i;
+      const chartEl = document.getElementById('mainChart');
+      const cw = chartEl.clientWidth, ch = chartEl.clientHeight;
+      const xPct = xs[i] / W, yPct = ysRev[i] / H;
+      tt.style.left = (xPct * cw) + 'px';
+      tt.style.top  = (yPct * ch) + 'px';
+      ttLabel.textContent = data[i].label;
+      ttVal.innerHTML = `IQD ${formatBig(data[i].revenue)} · <span style="color:rgba(250,246,238,0.6)">${data[i].orders} orders</span>`;
+      tt.classList.add('visible');
+    });
+    r.addEventListener('mouseleave', () => tt.classList.remove('visible'));
+  });
+}
+
+function drawSpark(id, values, color) {
+  const max = Math.max(...values), min = Math.min(...values);
+  const W = 100, H = 36;
+  const range = Math.max(1, max - min);
+  const path = values.map((v, i) => {
+    const x = (i / (values.length - 1)) * W;
+    const y = H - ((v - min) / range) * H;
+    return (i === 0 ? 'M' : 'L') + x + ' ' + y;
+  }).join(' ');
+  const el = document.getElementById(id);
+  if (el) el.setAttribute('d', path);
+}
+
+function formatBig(n) {
+  if (n >= 1e9) return (n/1e9).toFixed(2) + 'B';
+  if (n >= 1e6) return (n/1e6).toFixed(2) + 'M';
+  if (n >= 1e3) return (n/1e3).toFixed(1) + 'k';
+  return n.toString();
+}
+
+function updateKPIs(data) {
+  const totalRev = data.reduce((s, d) => s + d.revenue, 0);
+  const totalOrd = data.reduce((s, d) => s + d.orders, 0);
+  const avgTime = 24 + Math.round(Math.sin(Date.now()/30000) * 4 + 4);
+  const drivers = 36 + Math.round(Math.sin(Date.now()/15000) * 4);
+
+  document.getElementById('kpiRevenue').textContent = formatBig(totalRev);
+  document.getElementById('kpiOrders').textContent  = totalOrd.toLocaleString();
+  document.getElementById('kpiTime').innerHTML      = avgTime + '<span style="font-size:18px;color:var(--ink-mute)"> min</span>';
+  document.getElementById('kpiDrivers').innerHTML   = drivers + '<span style="font-size:18px;color:var(--ink-mute)">/52</span>';
+
+  drawSpark('sparkRevenue', data.map(d => d.revenue));
+  drawSpark('sparkOrders',  data.map(d => d.orders));
+  drawSpark('sparkTime',    data.map((_, i) => 22 + Math.sin(i*0.7)*5));
+  drawSpark('sparkDrivers', data.map((_, i) => 32 + Math.cos(i*0.5)*6));
+}
+
+// Orders feed
+const orderPool = [
+  { id: '#A4821', cust: 'Hassan Karim', route: 'Karrada → Mansour', amt: 'IQD 42,500', status: 'in-transit' },
+  { id: '#A4820', cust: 'Reem al-Saadi', route: 'Hay Aljameaa → Adhamiyah', amt: 'IQD 28,000', status: 'delivered' },
+  { id: '#A4819', cust: 'Marwan Jabari', route: 'Karrada → Zayouna', amt: 'IQD 71,200', status: 'delivered' },
+  { id: '#A4818', cust: 'Sara Nawaf', route: 'Mansour → Yarmouk', amt: 'IQD 18,400', status: 'pending' },
+  { id: '#A4817', cust: 'Ali al-Tamimi', route: 'Doura → Saydiya', amt: 'IQD 56,800', status: 'in-transit' },
+  { id: '#A4816', cust: 'Dunia Hamid', route: 'Adhamiyah → Karrada', amt: 'IQD 32,100', status: 'delivered' },
+  { id: '#A4815', cust: 'Yousif Khalil', route: 'Zayouna → Mansour', amt: 'IQD 14,900', status: 'cancelled' },
+  { id: '#A4814', cust: 'Layla Mahdi', route: 'Karrada → Hay Aljameaa', amt: 'IQD 47,600', status: 'in-transit' },
+  { id: '#A4813', cust: 'Omar Hashim', route: 'Saydiya → Doura', amt: 'IQD 21,200', status: 'delivered' },
+];
+const statusLabels = { 'delivered': 'Delivered', 'in-transit': 'In transit', 'pending': 'Pending', 'cancelled': 'Cancelled' };
+
+function renderOrders(filter = '') {
+  const list = document.getElementById('orderList');
+  // Keep header
+  const header = list.querySelector('.order-list__row--head');
+  list.innerHTML = '';
+  list.appendChild(header);
+  const filtered = orderPool.filter(o =>
+    !filter || o.id.toLowerCase().includes(filter) || o.cust.toLowerCase().includes(filter) || o.route.toLowerCase().includes(filter));
+  filtered.forEach(o => {
+    list.insertAdjacentHTML('beforeend', `
+      <div class="order-list__row">
+        <span class="order-id">${o.id}</span>
+        <div>
+          <div class="order-customer">${o.cust}</div>
+          <div class="order-route">${o.route}</div>
+        </div>
+        <span class="order-status status-${o.status}">${statusLabels[o.status]}</span>
+        <span class="order-route" style="text-align:center">2.4 km</span>
+        <span class="order-amount">${o.amt}</span>
+      </div>`);
+  });
+}
+
+const driverPool = [
+  { name: 'Ahmed Saeed', done: 28, avg: '22 min', online: true },
+  { name: 'Mustafa Karim', done: 24, avg: '24 min', online: true },
+  { name: 'Hadi al-Nuaimi', done: 22, avg: '26 min', online: true },
+  { name: 'Bilal Faraj', done: 19, avg: '28 min', online: true },
+  { name: 'Karim Habib', done: 16, avg: '31 min', online: false },
+  { name: 'Yousif Hadi', done: 14, avg: '33 min', online: true },
+];
+function renderDrivers() {
+  const dl = document.getElementById('driverList');
+  dl.innerHTML = '';
+  driverPool.forEach(d => {
+    const initials = d.name.split(' ').map(s => s[0]).slice(0,2).join('');
+    dl.insertAdjacentHTML('beforeend', `
+      <div class="driver-row">
+        <div class="driver-avatar">${initials}</div>
+        <div class="driver-info">
+          <div class="driver-name">${d.name}</div>
+          <div class="driver-stat">${d.done} deliveries · avg ${d.avg}</div>
+        </div>
+        <div class="driver-status-dot ${d.online ? '' : 'offline'}" title="${d.online ? 'Online' : 'Offline'}"></div>
+      </div>`);
+  });
+}
+
+function initDashboard() {
+  if (dashState.initialized) {
+    updateKPIs(rangeData(dashState.range));
+    drawChart(rangeData(dashState.range));
+    return;
+  }
+  dashState.initialized = true;
+
+  // Range toggle
+  document.querySelectorAll('#rangeToggle button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#rangeToggle button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      dashState.range = b.dataset.range;
+      const data = rangeData(dashState.range);
+      const labels = { '24h': 'Last 24 hours', '7d': 'Last 7 days', '30d': 'Last 30 days', '90d': 'Last 90 days' };
+      document.getElementById('chartMeta').textContent = labels[dashState.range] + ' · IQD';
+      updateKPIs(data);
+      drawChart(data);
+    });
+  });
+
+  // Sidebar nav
+  document.querySelectorAll('.dash__nav-item').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.dash__nav-item').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      dashState.view = b.dataset.dash;
+      const titles = {
+        overview:  ['Operations · Overview',  'Live · last sync 4 seconds ago'],
+        orders:    ['Orders',                 '214 orders today · 38 in transit'],
+        drivers:   ['Drivers',                '38 of 52 drivers online'],
+        map:       ['Live map',               'Tracking 38 drivers across Iraq'],
+        revenue:   ['Revenue insights',       'Last 7 days · IQD'],
+        customers: ['Customers',              '4,820 active · 124 new this week'],
+        settings:  ['Settings',               'Workspace · SwiftDrop Iraq'],
+      };
+      const t = titles[dashState.view];
+      document.getElementById('dashTitle').textContent = t[0];
+      document.getElementById('dashSubtitle').textContent = t[1];
+    });
+  });
+
+  // Search
+  document.getElementById('dashSearch').addEventListener('input', e => {
+    renderOrders(e.target.value.toLowerCase().trim());
+  });
+
+  // Legend toggle
+  document.querySelectorAll('.legend-item').forEach(item => {
+    item.addEventListener('click', () => {
+      item.classList.toggle('muted');
+      const series = item.dataset.series;
+      const muted = item.classList.contains('muted');
+      if (series === 'revenue') {
+        document.getElementById('revLine').style.opacity = muted ? '0' : '1';
+        document.getElementById('revArea').style.opacity = muted ? '0' : '1';
+      } else {
+        document.getElementById('ordLine').style.opacity = muted ? '0' : '1';
+        document.getElementById('ordArea').style.opacity = muted ? '0' : '1';
+      }
+    });
+  });
+
+  // Iraq map hover
+  const hoverEl = document.getElementById('mapHover');
+  document.querySelectorAll('#iraqMap .region').forEach(r => {
+    r.addEventListener('mouseenter', () => {
+      hoverEl.textContent = r.dataset.region + ' · ' + r.dataset.orders + ' orders';
+    });
+  });
+
+  // Initial draw
+  const data = rangeData(dashState.range);
+  updateKPIs(data);
+  drawChart(data);
+  renderOrders();
+  renderDrivers();
+
+  // Live tick — gently pulse KPIs every 7s
+  if (dashState.liveTimer) clearInterval(dashState.liveTimer);
+  dashState.liveTimer = setInterval(() => {
+    if (document.getElementById('dashboard').classList.contains('active')) {
+      updateKPIs(rangeData(dashState.range));
+    }
+  }, 7000);
+}
+
+// ============================================================
+// CONTACT FORM
+// ============================================================
+document.getElementById('contactForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const submit = document.getElementById('formSubmit');
+  const msg = document.getElementById('formMsg');
+  const data = Object.fromEntries(new FormData(form).entries());
+
+  submit.disabled = true;
+  submit.innerHTML = 'Sending…';
+  msg.className = 'form__msg';
+  msg.textContent = '';
+
+  try {
+    const res = await fetch(API_BASE + '/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.ok) throw new Error(json.error || 'Failed to send');
+
+    msg.className = 'form__msg success';
+    msg.innerHTML = `Got it — we received your inquiry and emailed a confirmation. <a href="${json.next.whatsapp_url}" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">Open WhatsApp now →</a>`;
+    form.reset();
+    submit.innerHTML = 'Sent ✓';
+    setTimeout(() => { submit.disabled = false; submit.innerHTML = 'Send another inquiry <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>'; }, 3000);
+  } catch (err) {
+    msg.className = 'form__msg error';
+    msg.textContent = 'Could not send right now — please WhatsApp us directly: +964 783 889 6681. ' + (err.message || '');
+    submit.disabled = false;
+    submit.innerHTML = 'Send inquiry <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>';
+  }
+});
+
+// ============================================================
+// BOOT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  observeReveals();
+  setupTilt();
+  applyParallax();
+  applyWatermarkRotation();
+  // Dashboard inits when its section becomes active
+});
+</script>
+</body>
+</html>
